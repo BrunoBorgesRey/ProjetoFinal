@@ -54,7 +54,30 @@ fun Produtos() {
             modifier = Modifier.fillMaxWidth()
 
         )*/
-
+        Spacer(modifier = Modifier.height(25.dp))
+        Button(onClick = {
+            Log.i("TesteCliente","Botao Inserir")
+        }, modifier = Modifier.width(300.dp)) {
+            Text(text = "Inserir")
+        }
+        Spacer(modifier = Modifier.height(25.dp))
+        Button(onClick = {
+            Log.i("TesteCliente","Botao Inserir")
+        }, modifier = Modifier.width(300.dp)) {
+            Text(text = "Listar")
+        }
+        Spacer(modifier = Modifier.height(25.dp))
+        Button(onClick = {
+            Log.i("TesteCliente","Botao Inserir")
+        }, modifier = Modifier.width(300.dp)) {
+            Text(text = "Deletar")
+        }
+        Spacer(modifier = Modifier.height(25.dp))
+        Button(onClick = {
+            Log.i("TesteCliente","Botao Inserir")
+        }, modifier = Modifier.width(300.dp)) {
+            Text(text = "Alterar")
+        }
         Spacer(modifier = Modifier.height(25.dp))
         Button(onClick = {
             Log.i("TesteProduto","Botao Voltar Produto")
