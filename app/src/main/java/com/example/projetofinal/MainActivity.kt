@@ -65,7 +65,6 @@ fun MenuPrincipal() {
             onClick = {
                 Log.i("Teste","Botão Cliente")
                 contexto.startActivity(Intent(contexto, TelaCliente::class.java))
-
             },
             modifier = Modifier.width(300.dp)) {
             Text(text = "Clientes")

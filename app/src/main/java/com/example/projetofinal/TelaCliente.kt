@@ -51,8 +51,7 @@ class TelaCliente() : ComponentActivity()
     }
 }
 
-/*@OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")*/
+
 @Composable
 fun Clientes() {
     val contexto = LocalContext.current
@@ -62,7 +61,7 @@ fun Clientes() {
     Column(
         Modifier.padding(40.dp)
     ) {
-        Text(text="Tela de CLientes", textAlign = TextAlign.Center,modifier = Modifier.fillMaxWidth())
+        Text(text="Tela de Clientes", textAlign = TextAlign.Center,modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(25.dp))
         /*TextField(
             value = estadoCampoDeTextoCpf.value,
@@ -76,6 +75,7 @@ fun Clientes() {
         Spacer(modifier = Modifier.height(25.dp))
         Button(onClick = {
             Log.i("TesteCliente","Botao Voltar Cliente")
+            contexto.startActivity(Intent(contexto, MainActivity::class.java))
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Voltar")
         }
