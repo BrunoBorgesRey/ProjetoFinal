@@ -19,21 +19,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposableTarget
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -58,7 +48,7 @@ class TelaCliente() : ComponentActivity()
 @OptIn(ExperimentalMaterial3Api::class)
 fun Clientes() {
     val contexto = LocalContext.current
-    val estadoCampoDeTextoCpf = remember { mutableStateOf(TextFieldValue("")) }
+    val estadoCampoDeTextoCpf = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoNome = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoTelefone = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoEndereco = remember { mutableStateOf(TextFieldValue()) }
@@ -69,85 +59,121 @@ fun Clientes() {
         Modifier.padding(40.dp)
     ) {
         Text(text="Tela de Clientes", textAlign = TextAlign.Center,modifier = Modifier.fillMaxWidth())
-        Spacer(modifier = Modifier.height(25.dp))
-
+        Spacer(modifier = Modifier.height(10.dp))
         TextField(
             value = estadoCampoDeTextoCpf.value,
-            onValueChange =  {estadoCampoDeTextoCpf.value = it },
-            placeholder = Text(text = "cpf"),
-            keyboardOptions= KeyboardOptions(capitalization = KeyboardCapitalization.None ),
-            textStile = TextStyle(color = Color.Black, fontSize = TextUnit.Unspecified, fontFamily = FontFamily.SansSerif ),
-            maxlines = 1,
-            modifier = Modifier.fillMaxWidth()
-
+            onValueChange = {
+                estadoCampoDeTextoCpf.value = it
+            },
+            placeholder = { Text(text = "Insira o CPF") },
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,//Sem restrições (letras/números).
+                autoCorrect = true,
+            ),
+            textStyle = TextStyle(
+                color = Color.Black,
+                fontSize = TextUnit.Unspecified,
+                fontFamily = FontFamily.SansSerif
+            ),
+            maxLines = 1,
         )
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         TextField(
-            value = estadoCampoDeTextoCpf.value,
-            onValueChange =  {estadoCampoDeTextoCpf.value = it },
-            placeholder = Text(text = "Nome"),
-            keyboardOptions= KeyboardOptions(capitalization = KeyboardCapitalization.None ),
-            textStile = TextStyle(color = Color.Black, fontSize = TextUnit.Unspecified, fontFamily = FontFamily.SansSerif ),
-            maxlines = 1,
-            modifier = Modifier.fillMaxWidth()
-
+            value = estadoCampoDeTextoNome.value,
+            onValueChange = {
+                estadoCampoDeTextoNome.value = it
+            },
+            placeholder = { Text(text = "Insira o Nome") },
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,//Sem restrições (letras/números).
+                autoCorrect = true,
+            ),
+            textStyle = TextStyle(
+                color = Color.Black,
+                fontSize = TextUnit.Unspecified,
+                fontFamily = FontFamily.SansSerif
+            ),
+            maxLines = 1,
         )
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         TextField(
-            value = estadoCampoDeTextoCpf.value,
-            onValueChange =  {estadoCampoDeTextoCpf.value = it },
-            placeholder = Text(text = "Telefone"),
-            keyboardOptions= KeyboardOptions(capitalization = KeyboardCapitalization.None ),
-            textStile = TextStyle(color = Color.Black, fontSize = TextUnit.Unspecified, fontFamily = FontFamily.SansSerif ),
-            maxlines = 1,
-            modifier = Modifier.fillMaxWidth()
+            value = estadoCampoDeTextoTelefone.value,
+            onValueChange = {
+                estadoCampoDeTextoTelefone.value = it
+            },
+            placeholder = { Text(text = "Insira o Telefone") },
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,//Sem restrições (letras/números).
+                autoCorrect = true,
+            ),
+            textStyle = TextStyle(
+                color = Color.Black,
+                fontSize = TextUnit.Unspecified,
+                fontFamily = FontFamily.SansSerif
+            ),
+            maxLines = 1,
         )
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         TextField(
-            value = estadoCampoDeTextoCpf.value,
-            onValueChange =  {estadoCampoDeTextoCpf.value = it },
-            placeholder = Text(text = "Endereco"),
-            keyboardOptions= KeyboardOptions(capitalization = KeyboardCapitalization.None ),
-            textStile = TextStyle(color = Color.Black, fontSize = TextUnit.Unspecified, fontFamily = FontFamily.SansSerif ),
-            maxlines = 1,
-            modifier = Modifier.fillMaxWidth()
+            value = estadoCampoDeTextoEndereco.value,
+            onValueChange = {
+                estadoCampoDeTextoEndereco.value = it
+            },
+            placeholder = { Text(text = "Insira o Endereço") },
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,//Sem restrições (letras/números).
+                autoCorrect = true,
+            ),
+            textStyle = TextStyle(
+                color = Color.Black,
+                fontSize = TextUnit.Unspecified,
+                fontFamily = FontFamily.SansSerif
+            ),
+            maxLines = 1,
         )
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         TextField(
-            value = estadoCampoDeTextoCpf.value,
-            onValueChange =  {estadoCampoDeTextoCpf.value = it },
-            placeholder = Text(text = "Instagram"),
-            keyboardOptions= KeyboardOptions(capitalization = KeyboardCapitalization.None ),
-            textStile = TextStyle(color = Color.Black, fontSize = TextUnit.Unspecified, fontFamily = FontFamily.SansSerif ),
-            maxlines = 1,
-            modifier = Modifier.fillMaxWidth()
+            value = estadoCampoDeTextoInstagram.value,
+            onValueChange = {
+                estadoCampoDeTextoInstagram.value = it
+            },
+            placeholder = { Text(text = "Insira o Instagram") },
+            keyboardOptions = KeyboardOptions(
+                capitalization = KeyboardCapitalization.None,//Sem restrições (letras/números).
+                autoCorrect = true,
+            ),
+            textStyle = TextStyle(
+                color = Color.Black,
+                fontSize = TextUnit.Unspecified,
+                fontFamily = FontFamily.SansSerif
+            ),
+            maxLines = 1,
         )
-
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
             Log.i("TesteCliente","Botao Inserir")
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Inserir")
         }
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
             Log.i("TesteCliente","Botao Inserir")
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Listar")
         }
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
             Log.i("TesteCliente","Botao Inserir")
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Deletar")
         }
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
             Log.i("TesteCliente","Botao Inserir")
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Alterar")
         }
-        Spacer(modifier = Modifier.height(25.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
             Log.i("TesteCliente","Botao Voltar Cliente")
             contexto.startActivity(Intent(contexto, MainActivity::class.java))
