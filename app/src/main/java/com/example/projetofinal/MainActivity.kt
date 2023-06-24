@@ -22,12 +22,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Log.i("Teste","Comeca Menu")
+            Log.i("MainActivity","Comeca Menu")
             MenuPrincipal()
         }
     }
 }
-
 
 @Composable
 fun MenuPrincipal() {
@@ -39,7 +38,7 @@ fun MenuPrincipal() {
         Spacer(modifier = Modifier.height(15.dp))
         Button(
             onClick = {
-                Log.i("Teste","Botão Cliente")
+                Log.i("MenuPrincipal","Botão Cliente")
                 contexto.startActivity(Intent(contexto, TelaCliente::class.java))
             },
             modifier = Modifier.width(300.dp)) {
@@ -49,7 +48,7 @@ fun MenuPrincipal() {
         Spacer(modifier = Modifier.height(15.dp))
         Button(
             onClick = {
-                Log.i("Teste","Botão Produto")
+                Log.i("MenuPrincipal","Botão Produto")
                 contexto.startActivity(Intent(contexto, TelaProduto::class.java))
             },
             modifier = Modifier.width(300.dp)) {
@@ -59,7 +58,7 @@ fun MenuPrincipal() {
         Spacer(modifier = Modifier.height(15.dp))
         Button(
             onClick = {
-                Log.i("Teste","Botão Pedidos")
+                Log.i("MenuPrincipal","Botão Pedidos")
                 contexto.startActivity(Intent(contexto, TelaPedido::class.java))
             },
             modifier = Modifier.width(300.dp)) {

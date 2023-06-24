@@ -56,7 +56,17 @@ dependencies {
 
     implementation "io.insert-koin:koin-androidx-compose:3.4.5"
 
+    // atividades assincronas
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9'
+
+    // Android Studio Preview support
+    implementation 'androidx.compose.ui:ui-tooling-preview'
+    debugImplementation 'androidx.compose.ui:ui-tooling'
+
+    //utilizar imagem assincrona
+    implementation "io.coil-kt:coil-compose:2.4.0"
+
+
 
     constraints {
         implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0") {
@@ -84,4 +94,6 @@ dependencies {
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
+
+    implementation 'androidx.compose.material:material:1.2.0'
 }

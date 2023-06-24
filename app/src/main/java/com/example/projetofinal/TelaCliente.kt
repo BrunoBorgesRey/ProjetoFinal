@@ -151,31 +151,31 @@ fun Clientes() {
         )
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
-            Log.i("TesteCliente","Botao Inserir")
+            Log.i("TelaCliente","Botao Inserir")
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Inserir")
         }
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
-            Log.i("TesteCliente","Botao Inserir")
+            Log.i("TelaCliente","Botao Inserir")
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Listar")
         }
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
-            Log.i("TesteCliente","Botao Inserir")
+            Log.i("TelaCliente","Botao Inserir")
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Deletar")
         }
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
-            Log.i("TesteCliente","Botao Inserir")
+            Log.i("TelaCliente","Botao Inserir")
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Alterar")
         }
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
-            Log.i("TesteCliente","Botao Voltar Cliente")
+            Log.i("TelaCliente","Botao Voltar Cliente")
             contexto.startActivity(Intent(contexto, MainActivity::class.java))
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Voltar")

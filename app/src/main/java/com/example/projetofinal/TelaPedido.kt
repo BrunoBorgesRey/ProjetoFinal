@@ -36,7 +36,7 @@ class TelaPedido() : ComponentActivity()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Log.i("Teste","Tela Pedido")
+            Log.i("TelaPedido oncreate","Tela Pedido")
             Pedidos()
         }
     }
@@ -111,31 +111,31 @@ fun Pedidos() {
         )
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
-            Log.i("TestePedido","Botao Inserir")
+            Log.i("TelaPedido","Botao Inserir")
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Inserir")
         }
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
-            Log.i("TestePedido","Botao Listar")
+            Log.i("TelaPedido","Botao Listar")
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Listar")
         }
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
-            Log.i("TestePedido","Botao Deletar")
+            Log.i("TelaPedido","Botao Deletar")
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Deletar")
         }
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
-            Log.i("TestePedido","Botao Alterar")
+            Log.i("TelaPedido","Botao Alterar")
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Alterar")
         }
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
-            Log.i("TestePedido","Botao Voltar Pedido")
+            Log.i("TelaPedido","Botao Voltar Pedido")
             contexto.startActivity(Intent(contexto, MainActivity::class.java))
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Voltar")

@@ -1,18 +1,22 @@
 package com.example.projetofinal.repository
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.projetofinal.models.Produto
-import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
+import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 private const val COLECAO_FIRESTORE_PRODUTOS = "produtos"
 
+
 class ProdutoRepository(
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore, private val storage: FirebaseStorage
 ) {
 
     fun buscaPorId(id: String): LiveData<Produto> = MutableLiveData<Produto>().apply {
@@ -28,7 +32,26 @@ class ProdutoRepository(
             }
     }
 
-    fun salva(produto: Produto): LiveData<Boolean> = MutableLiveData<Boolean>().apply {
+    suspend fun enviaImagem(produtoId: String, foto: ByteArray) {
+        GlobalScope.launch {
+            try {
+                val documento = firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
+                    .document(produtoId)
+
+                val referencia = storage.reference.child("produtos/$produtoId.jpg")
+                referencia.putBytes(foto).await()
+
+                val url = referencia.downloadUrl.await()
+
+                documento
+                    .update(mapOf("foto" to url.toString()))
+                    .await()
+            } catch (e: Exception) {
+                Log.e("ENVIAIMAGEM", "enviaImagem: falha ao enviar a imagem", e)
+            }
+        }
+    }
+    suspend fun salva(produto: Produto, foto: ByteArray): LiveData<Boolean> = MutableLiveData<Boolean>().apply {
         val produtoDocumento = ProdutoDocumento(
             descricao = produto.descricao,
             valor = produto.preco.toDouble(),
@@ -40,6 +63,7 @@ class ProdutoRepository(
             colecao.document(id)
         } ?: colecao.document()
 
+        enviaImagem(documento.id, foto)
         value = true
     }
 
@@ -62,7 +86,6 @@ class ProdutoRepository(
             .delete()
         value = true
     }
-
 
     suspend fun editar(id: String, produtoAlterado: Produto) {
         val document = firestore.collection(COLECAO_FIRESTORE_PRODUTOS).document(id)
