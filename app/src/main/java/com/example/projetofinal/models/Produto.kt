@@ -1,9 +1,9 @@
 package com.example.projetofinal.models
 
 data class Produto(
-    val idProduto: String,
+    val id: String,
     val descricao: String,
-    val valor: Double,
-    val foto: Int
+    val preco: Double,
+    val foto: String? = null,
 ) {
 }
