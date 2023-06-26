@@ -22,51 +22,55 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            Log.i("MainActivity","Comeca Menu")
+            Log.i("MainActivity", "Comeca Menu")
             MenuPrincipal()
         }
+
     }
 }
 
 @Composable
 fun MenuPrincipal() {
     val contexto = LocalContext.current
-    Column( 
+    Column(
         Modifier.padding(40.dp)
     ) {
-        Text(text = "Pé fedorento", textAlign = TextAlign.Center, modifier = Modifier.width(300.dp) )
+        Text(text = "Pé fedorento", textAlign = TextAlign.Center, modifier = Modifier.width(300.dp))
         Spacer(modifier = Modifier.height(15.dp))
         Button(
             onClick = {
-                Log.i("MenuPrincipal","Botão Cliente")
+                Log.i("MenuPrincipal", "Botão Cliente")
                 contexto.startActivity(Intent(contexto, TelaCliente::class.java))
             },
-            modifier = Modifier.width(300.dp)) {
+            modifier = Modifier.width(300.dp)
+        ) {
             Text(text = "Clientes")
 
         }
         Spacer(modifier = Modifier.height(15.dp))
         Button(
             onClick = {
-                Log.i("MenuPrincipal","Botão Produto")
+                Log.i("MenuPrincipal", "Botão Produto")
                 contexto.startActivity(Intent(contexto, TelaProduto::class.java))
             },
-            modifier = Modifier.width(300.dp)) {
+            modifier = Modifier.width(300.dp)
+        ) {
             Text(text = "Produtos")
 
         }
         Spacer(modifier = Modifier.height(15.dp))
         Button(
             onClick = {
-                Log.i("MenuPrincipal","Botão Pedidos")
+                Log.i("MenuPrincipal", "Botão Pedidos")
                 contexto.startActivity(Intent(contexto, TelaPedido::class.java))
             },
-            modifier = Modifier.width(300.dp)) {
+            modifier = Modifier.width(300.dp)
+        ) {
             Text(text = "Pedidos")
 
         }
     }
-    
+
 }
 
 //@Preview(showBackground = true)

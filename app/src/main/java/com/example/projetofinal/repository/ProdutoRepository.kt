@@ -8,9 +8,8 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.UUID
 
 private const val COLECAO_FIRESTORE_PRODUTOS = "produtos"
 
@@ -32,40 +31,91 @@ class ProdutoRepository(
             }
     }
 
+//    suspend fun enviaImagem(produtoId: String, foto: ByteArray) {
+//        GlobalScope.launch {
+//            try {
+//                val documento = firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
+//                    .document(produtoId)
+//
+//                val referencia = storage.reference.child("produtos/$produtoId.jpg")
+//                referencia.putBytes(foto).await()
+//
+//                val url = referencia.downloadUrl.await()
+//
+//                documento
+//                    .update(mapOf("foto" to url.toString()))
+//                    .await()
+//            } catch (e: Exception) {
+//                Log.e("ENVIAIMAGEM", "enviaImagem: falha ao enviar a imagem", e)
+//            }
+//        }
+//    }
+//    suspend fun salva(produto: Produto, foto: ByteArray): LiveData<Boolean> = MutableLiveData<Boolean>().apply {
+//        val produtoDocumento = ProdutoDocumento(
+//            descricao = produto.descricao,
+//            valor = produto.preco.toDouble(),
+//            foto = produto.foto,
+//        )
+//
+//        val colecao = firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
+//        val documento = produto.id?.let { id ->
+//            colecao.document(id)
+//        } ?: colecao.document()
+//
+//        enviaImagem(documento.id, foto)
+//        value = true
+//    }
+
     suspend fun enviaImagem(produtoId: String, foto: ByteArray) {
-        GlobalScope.launch {
-            try {
-                val documento = firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
-                    .document(produtoId)
+        try {
+            val referencia = storage.reference.child("produtos/$produtoId.jpg")
 
-                val referencia = storage.reference.child("produtos/$produtoId.jpg")
-                referencia.putBytes(foto).await()
+            referencia.putBytes(foto).await()
+            val url = referencia.downloadUrl.await()
 
-                val url = referencia.downloadUrl.await()
+            val documento = firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
+                .document(produtoId)
+            documento
+                .update("foto", url.toString())
+                .await()
 
-                documento
-                    .update(mapOf("foto" to url.toString()))
-                    .await()
-            } catch (e: Exception) {
-                Log.e("ENVIAIMAGEM", "enviaImagem: falha ao enviar a imagem", e)
-            }
+            return
+        } catch (e: Exception) {
+            Log.e("ENVIAIMAGEM", "enviaImagem: falha ao enviar a imagem", e)
         }
     }
-    suspend fun salva(produto: Produto, foto: ByteArray): LiveData<Boolean> = MutableLiveData<Boolean>().apply {
-        val produtoDocumento = ProdutoDocumento(
-            descricao = produto.descricao,
-            valor = produto.preco.toDouble(),
-            foto = produto.foto,
-        )
 
-        val colecao = firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
-        val documento = produto.id?.let { id ->
-            colecao.document(id)
-        } ?: colecao.document()
+    suspend fun salva(produto: Produto, foto: ByteArray): LiveData<Boolean> =
+        MutableLiveData<Boolean>().apply {
+            Log.i("ProdutoRepository", "recebendo o produto $produto e a foto $foto")
 
-        enviaImagem(documento.id, foto)
-        value = true
-    }
+            val colecao = firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
+//            val documento = produtoDocumento.id?.let { id ->
+//                Log.i("ProdutoRepository","Valor id $id")
+//                colecao.document(id)
+//            } ?: colecao.document()
+
+            produto.id = UUID.randomUUID().toString()
+            Log.i("ProdutoRepository", "Informações do ID $produto.id")
+            val produtoMapeado = mapOf<String, Any>(
+                "id" to produto.id,
+                "descricao" to produto.descricao,
+                "preco" to produto.preco.toDouble(),
+
+                )
+
+            Log.i("ProdutoRepository", "produtoMapeado: ${produtoMapeado}")
+            colecao.document(produto.id)
+                .set(produtoMapeado)
+                .addOnSuccessListener {
+                    Log.d("FireStore", "save: produto salvo")
+                }.addOnFailureListener {
+                   e -> Log.w("FireStore", "save: produto erro ${e}")
+                }
+
+            enviaImagem(produto.id, foto)
+            value = true
+        }
 
     fun buscaTodos(): LiveData<List<Produto>> = MutableLiveData<List<Produto>>().apply {
         firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
@@ -89,7 +139,11 @@ class ProdutoRepository(
 
     suspend fun editar(id: String, produtoAlterado: Produto) {
         val document = firestore.collection(COLECAO_FIRESTORE_PRODUTOS).document(id)
-        val produtoAlteradoDocumento = ProdutoDocumento(descricao = produtoAlterado.descricao, foto=produtoAlterado.foto, valor=produtoAlterado.preco)
+        val produtoAlteradoDocumento = ProdutoDocumento(
+            descricao = produtoAlterado.descricao,
+            foto = produtoAlterado.foto,
+            valor = produtoAlterado.preco
+        )
         document.set(produtoAlteradoDocumento).await()
     }
 
@@ -100,7 +154,7 @@ class ProdutoRepository(
         val id: String = "",
         val descricao: String = "",
         val valor: Double = 0.0,
-        val foto:String? = null,
+        val foto: String? = null,
     ) {
 
         fun paraProduto(id: String): Produto = Produto(
