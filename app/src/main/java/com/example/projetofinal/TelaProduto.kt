@@ -95,7 +95,12 @@ fun Produtos() {
                 onValueChange = {
                     estadoCampoDeTextoDescricao.value = it
                 },
-                placeholder = { Text(text = "Insira a Descrição") },
+                modifier = Modifier.height(60.dp),
+                placeholder = { Text(text = "Insira a Descrição", style = TextStyle(
+                    fontSize = 18.sp,
+                ),
+                    fontWeight = FontWeight.Bold,
+                    ) },
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.None,//Sem restrições (letras/números).
                     autoCorrect = true,
@@ -115,7 +120,11 @@ fun Produtos() {
                 onValueChange = {
                     estadoCampoDeTextoValor.value = it
                 },
-                placeholder = { Text(text = "Insira o Valor") },
+                placeholder = { Text(text = "Insira o Valor", style = TextStyle(
+                    fontSize = 18.sp,
+                ),
+                    fontWeight = FontWeight.Bold,
+                    ) },
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.None,//Sem restrições (letras/números).
                     autoCorrect = true,
@@ -186,7 +195,6 @@ fun Produtos() {
                         produto.foto = fotoByteArray.toString();
                         Log.i("TelaProduto Inserir", "$produto, $fotoByteArray" )
                         if (fotoByteArray != null) {
-
                             repository.salva(produto, fotoByteArray)
                         } else {
                             // TODO Lidar com a falha ao obter o ByteArray da imagem
@@ -198,7 +206,12 @@ fun Produtos() {
                 }
                 Log.i("TelaProduto", "Botao Inserir")
             }, modifier = Modifier.width(300.dp)) {
-                Text(text = "Inserir")
+                Text(text = "Inserir", fontStyle = FontStyle.Normal,
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                    ),
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,)
             }
             Spacer(modifier = Modifier.height(25.dp))
         }
@@ -207,7 +220,11 @@ fun Produtos() {
             Button(onClick = {
                 Log.i("TelaProduto", "Botao Listar")
             }, modifier = Modifier.width(300.dp)) {
-                Text(text = "Listar")
+                Text(text = "Listar", style = TextStyle(
+                    fontSize = 18.sp,
+                ),
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,)
             }
             Spacer(modifier = Modifier.height(25.dp))
         }
@@ -215,7 +232,11 @@ fun Produtos() {
             Button(onClick = {
                 Log.i("TelaProduto", "Botao Deletar")
             }, modifier = Modifier.width(300.dp)) {
-                Text(text = "Deletar")
+                Text(text = "Deletar", style = TextStyle(
+                    fontSize = 18.sp,
+                ),
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,)
             }
             Spacer(modifier = Modifier.height(25.dp))
         }
@@ -223,7 +244,11 @@ fun Produtos() {
             Button(onClick = {
                 Log.i("TelaProduto", "Botao Alterar")
             }, modifier = Modifier.width(300.dp)) {
-                Text(text = "Alterar")
+                Text(text = "Alterar", style = TextStyle(
+                    fontSize = 18.sp,
+                ),
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,)
             }
             Spacer(modifier = Modifier.height(25.dp))
         }
@@ -232,7 +257,11 @@ fun Produtos() {
                 Log.i("TelaProduto", "Botao Voltar Produto")
                 contexto.startActivity(Intent(contexto, MainActivity::class.java))
             }, modifier = Modifier.width(300.dp)) {
-                Text(text = "Voltar")
+                Text(text = "Voltar", style = TextStyle(
+                    fontSize = 18.sp,
+                ),
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center,)
             }
         }
     }
@@ -247,11 +276,7 @@ fun Produtos() {
 //    }
 //}
 
-@Preview(showSystemUi = true)
-@Composable
-fun ProdutosPreview() {
-    Produtos()
-}
+
 
 
 @Composable
@@ -262,4 +287,9 @@ fun getProdutoRepository(): ProdutoRepository {
     return produtoRepository
 }
 
+@Preview(showSystemUi = true)
+@Composable
+fun ProdutosPreview() {
+    Produtos()
+}
 
