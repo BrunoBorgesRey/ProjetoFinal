@@ -3,6 +3,7 @@ package com.example.projetofinal.repository
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.projetofinal.models.Cliente
 import com.example.projetofinal.models.Produto
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -12,7 +13,7 @@ import kotlinx.coroutines.tasks.await
 import java.util.UUID
 
 private const val COLECAO_FIRESTORE_PRODUTOS = "produtos"
-
+private const val COLECAO_FIRESTORE_CLIENTES = "clientes"
 
 class ProdutoRepository(
     private val firestore: FirebaseFirestore, private val storage: FirebaseStorage
@@ -117,6 +118,36 @@ class ProdutoRepository(
             value = true
         }
 
+    suspend fun salvarcliente(cliente: Cliente): LiveData<Boolean> =
+        MutableLiveData<Boolean>().apply {
+            Log.i("ClienteRepository", "recebendo o cliente $cliente")
+
+            val colecao = firestore.collection(COLECAO_FIRESTORE_CLIENTES)
+
+
+            cliente.id = UUID.randomUUID().toString()
+            Log.i("ProdutoRepository", "Informações do ID $cliente.id")
+            val produtoMapeado = mapOf<String, Any>(
+                "id" to cliente.id,
+                "descricao" to cliente.cpf,
+                "nome" to cliente.nome,
+                "telefone" to cliente.telefone,
+                "endereco" to cliente.endereco,
+                "instagram" to cliente.instagram,
+                )
+
+            Log.i("ProdutoRepository", "produtoMapeado: ${produtoMapeado}")
+            colecao.document(cliente.id)
+                .set(produtoMapeado)
+                .addOnSuccessListener {
+                    Log.d("FireStore", "save: produto salvo")
+                }.addOnFailureListener {
+                        e -> Log.w("FireStore", "save: produto erro ${e}")
+                }
+
+
+            value = true
+        }
     fun buscaTodos(): LiveData<List<Produto>> = MutableLiveData<List<Produto>>().apply {
         firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
             .addSnapshotListener { s, _ ->

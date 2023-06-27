@@ -24,12 +24,18 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.TextUnit
+import com.example.projetofinal.models.Cliente
+import com.example.projetofinal.models.Produto
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class TelaCliente() : ComponentActivity()
@@ -47,6 +53,8 @@ class TelaCliente() : ComponentActivity()
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun Clientes() {
+    val repository = getProdutoRepository()
+    val coroutineScope = rememberCoroutineScope()
     val contexto = LocalContext.current
     val estadoCampoDeTextoCpf = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoNome = remember { mutableStateOf(TextFieldValue()) }
@@ -151,7 +159,33 @@ fun Clientes() {
         )
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
-            Log.i("TelaCliente","Botao Inserir")
+            Log.i("TelaCliente Inserir", "Botao Inserir")
+
+            val cpf = estadoCampoDeTextoCpf.value.text
+            val nome = estadoCampoDeTextoNome.value.text
+            val telefone = estadoCampoDeTextoTelefone.value.text
+            val endereco = estadoCampoDeTextoEndereco.value.text
+            val instagram = estadoCampoDeTextoInstagram.value.text
+
+            if (cpf.isNotEmpty() && nome.isNotEmpty() && telefone.isNotEmpty() && endereco.isNotEmpty() && instagram.isNotEmpty()) {
+                val cliente = Cliente(
+                    cpf = cpf,
+                    nome = nome,
+                    telefone = telefone,
+                    endereco = endereco,
+                    instagram = instagram
+                )
+
+//                     Inicie uma coroutine para buscar o ByteArray da imagem
+                coroutineScope.launch {
+
+
+                    repository.salvarcliente(cliente)
+
+
+                    Log.i("TelaCliente", "Botao Inserir")
+                }
+            }
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Inserir")
         }

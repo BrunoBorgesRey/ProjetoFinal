@@ -1,6 +1,7 @@
 package com.example.projetofinal.models
 
-data class Clientes(
+data class Cliente(
+    var id: String = "",
     val cpf: String,
     val nome: String,
     val telefone: String,
