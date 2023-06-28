@@ -19,6 +19,9 @@
             android:name=".TelaCliente"
             android:exported="false" />
         <activity
+            android:name=".ListaCliente"
+            android:exported="false" />
+        <activity
             android:name=".TelaProduto"
             android:exported="false" />
         <activity

@@ -121,10 +121,7 @@ class ProdutoRepository(
     suspend fun salvarcliente(cliente: Cliente): LiveData<Boolean> =
         MutableLiveData<Boolean>().apply {
             Log.i("ClienteRepository", "recebendo o cliente $cliente")
-
             val colecao = firestore.collection(COLECAO_FIRESTORE_CLIENTES)
-
-
             cliente.id = UUID.randomUUID().toString()
             Log.i("ProdutoRepository", "Informações do ID $cliente.id")
             val produtoMapeado = mapOf<String, Any>(
@@ -150,16 +147,12 @@ class ProdutoRepository(
         }
     fun buscaTodos(): LiveData<List<Produto>> {
         val liveData = MutableLiveData<List<Produto>>()
-
-        Log.i("buscaTodos", "Inicio")
-
         firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
             .addSnapshotListener { snapshot, exception ->
                 if (exception != null) {
                     Log.e("buscaTodos", "Erro ao buscar produtos: ${exception.message}")
                     return@addSnapshotListener
                 }
-
                 snapshot?.let { snapshot ->
                     val produtos: List<Produto> = snapshot.documents.mapNotNull { documento ->
                         converteParaProduto(documento)
@@ -167,9 +160,24 @@ class ProdutoRepository(
                     liveData.value = produtos
                 }
             }
+        return liveData
+    }
 
-        Log.i("buscaTodos", "Fim")
-
+    fun buscaTodosCliente(): LiveData<List<Cliente>> {
+        val liveData = MutableLiveData<List<Cliente>>()
+        firestore.collection(COLECAO_FIRESTORE_CLIENTES)
+            .addSnapshotListener { snapshot, exception ->
+                if (exception != null) {
+                    Log.e("buscaTodos", "Erro ao buscar produtos: ${exception.message}")
+                    return@addSnapshotListener
+                }
+                snapshot?.let { snapshot ->
+                    val clientes: List<Cliente> = snapshot.documents.mapNotNull { documento ->
+                        converteParaCliente(documento)
+                    }
+                    liveData.value = clientes
+                }
+            }
         return liveData
     }
 
@@ -198,6 +206,13 @@ class ProdutoRepository(
         value = true
     }
 
+    fun removeCliente(clienteId: String): LiveData<Boolean> = MutableLiveData<Boolean>().apply {
+        firestore.collection(COLECAO_FIRESTORE_CLIENTES)
+            .document(clienteId)
+            .delete()
+        value = true
+    }
+
     suspend fun editar(id: String, produtoAlterado: Produto) {
         val document = firestore.collection(COLECAO_FIRESTORE_PRODUTOS).document(id)
         val produtoAlteradoDocumento = ProdutoDocumento(
@@ -211,6 +226,9 @@ class ProdutoRepository(
     private fun converteParaProduto(documento: DocumentSnapshot): Produto? =
         documento.toObject<ProdutoDocumento>()?.paraProduto(documento.id)
 
+    private fun converteParaCliente(documento: DocumentSnapshot): Cliente? =
+        documento.toObject<ClienteDocumento>()?.paraCliente(documento.id)
+
     private class ProdutoDocumento(
         val id: String = "",
         val descricao: String = "",
@@ -223,6 +241,25 @@ class ProdutoRepository(
             descricao = descricao,
             preco = valor,
             foto = foto,
+        )
+    }
+    private class ClienteDocumento(
+        val id: String = "",
+        val cpf: String = "",
+        val nome: String = "",
+        val telefone: String = "",
+        val endereco: String = "",
+        val instagram: String = "",
+
+    ) {
+
+        fun paraCliente(id: String): Cliente = Cliente(
+            id = id,
+            cpf = cpf,
+            nome = nome,
+            telefone = telefone,
+            endereco = endereco,
+            instagram = instagram
         )
     }
 }

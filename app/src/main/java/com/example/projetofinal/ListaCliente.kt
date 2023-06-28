@@ -1,5 +1,6 @@
 package com.example.projetofinal
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Row
@@ -20,38 +21,40 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LiveData
-import com.example.projetofinal.models.Produto
+import com.example.projetofinal.models.Cliente
 
 
 
-class ListaProduto : ComponentActivity() {
+class ListaCliente : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val repository = getProdutoRepository()
-            val produtosLiveData = repository.buscaTodos()
-            ListaProdutosContent(produtosLiveData)
+            Log.i("ListaCliente","ComecaBusca")
+            val clientesLiveData = repository.buscaTodosCliente()
+            Log.i("ListaCliente","Acaba Busca")
+            ListaClientesContent(clientesLiveData)
         }
     }
 }
 
 @Composable
-fun ListaProdutosContent(produtosLiveData: LiveData<List<Produto>>) {
-    val produtosState by produtosLiveData.observeAsState(emptyList())
-    ListaProdutos(produtos = produtosState)
+fun ListaClientesContent(clientesLiveData: LiveData<List<Cliente>>) {
+    val clientesState by clientesLiveData.observeAsState(emptyList())
+    ListaClientes(clientes = clientesState)
 }
 
 @Composable
-fun ListaProdutos(produtos: List<Produto>) {
+fun ListaClientes(clientes: List<Cliente>) {
     LazyColumn {
-        items(produtos) { produto ->
-            ProductItem(produto = produto)
+        items(clientes) { cliente ->
+            ProductItem(cliente = cliente)
         }
     }
 }
 
 @Composable
-fun ProductItem(produto: Produto) {
+fun ProductItem(cliente: Cliente) {
     val repository = getProdutoRepository()
     Row(
         modifier = Modifier
@@ -61,7 +64,7 @@ fun ProductItem(produto: Produto) {
     ) {
         // Display the product details
         Text(
-            text = produto.descricao,
+            text = cliente.nome,
             style = TextStyle(
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
@@ -69,7 +72,7 @@ fun ProductItem(produto: Produto) {
             modifier = Modifier.weight(1f)
         )
         Text(
-            text = produto.preco.toString(),
+            text = cliente.cpf,
             style = TextStyle(
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
@@ -78,14 +81,10 @@ fun ProductItem(produto: Produto) {
         )
         Button(
             onClick = {
-                repository.remove(produto.id) },
+                repository.removeCliente(cliente.id) },
             modifier = Modifier.width(100.dp)
         ) {
             Text(text = "Deletar")
         }
     }
 }
-
-
-
-
