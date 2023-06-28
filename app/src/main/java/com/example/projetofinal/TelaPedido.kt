@@ -20,6 +20,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -30,6 +31,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+
 
 class TelaPedido() : ComponentActivity()
 {
@@ -46,6 +48,8 @@ class TelaPedido() : ComponentActivity()
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun Pedidos() {
+    val repository = getProdutoRepository()
+    val coroutineScope = rememberCoroutineScope()
     val contexto = LocalContext.current
     val estadoCampoDeTextoIdPedido = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoData = remember { mutableStateOf(TextFieldValue()) }
@@ -112,12 +116,28 @@ fun Pedidos() {
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
             Log.i("TelaPedido","Botao Inserir")
+            /*val idPedido = estadoCampoDeTextoIdPedido.value.text
+            val data = estadoCampoDeTextoData.value.to
+
+            if (data.isNotEmpty() ) {
+                val pedido = Pedido(
+                    idPedido = idPedido,
+                    data = data ,
+                    listaProduto = ""
+                )
+//                     Inicie uma coroutine para buscar o ByteArray da imagem
+                coroutineScope.launch {
+                    repository.salvarpedido(pedido)
+                    Log.i("TelaCliente", "Botao Inserir")
+                }
+            }*/
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Inserir")
         }
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
             Log.i("TelaPedido","Botao Listar")
+
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Listar")
         }

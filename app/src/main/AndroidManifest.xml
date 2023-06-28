@@ -22,6 +22,9 @@
             android:name=".TelaProduto"
             android:exported="false" />
         <activity
+            android:name=".ListaProduto"
+            android:exported="false" />
+        <activity
             android:name=".TelaPedido"
             android:exported="false" />
         <activity

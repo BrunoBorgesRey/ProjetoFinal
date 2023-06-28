@@ -148,7 +148,35 @@ class ProdutoRepository(
 
             value = true
         }
-    fun buscaTodos(): LiveData<List<Produto>> = MutableLiveData<List<Produto>>().apply {
+    fun buscaTodos(): LiveData<List<Produto>> {
+        val liveData = MutableLiveData<List<Produto>>()
+
+        Log.i("buscaTodos", "Inicio")
+
+        firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
+            .addSnapshotListener { snapshot, exception ->
+                if (exception != null) {
+                    Log.e("buscaTodos", "Erro ao buscar produtos: ${exception.message}")
+                    return@addSnapshotListener
+                }
+
+                snapshot?.let { snapshot ->
+                    val produtos: List<Produto> = snapshot.documents.mapNotNull { documento ->
+                        converteParaProduto(documento)
+                    }
+                    liveData.value = produtos
+                }
+            }
+
+        Log.i("buscaTodos", "Fim")
+
+        return liveData
+    }
+
+
+    /*
+     fun buscaTodos(): LiveData<List<Produto>> = MutableLiveData<List<Produto>>().apply {
+        Log.i("buscaTodos", "Inicio")
         firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
             .addSnapshotListener { s, _ ->
                 s?.let { snapshot ->
@@ -157,9 +185,11 @@ class ProdutoRepository(
                             converteParaProduto(documento)
                         }
                     value = produtos
+
                 }
             }
-    }
+        Log.i("buscaTodos", "Fim")
+    }*/
 
     fun remove(produtoId: String): LiveData<Boolean> = MutableLiveData<Boolean>().apply {
         firestore.collection(COLECAO_FIRESTORE_PRODUTOS)

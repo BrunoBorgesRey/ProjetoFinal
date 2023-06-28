@@ -32,10 +32,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.TextUnit
 import com.example.projetofinal.models.Cliente
-import com.example.projetofinal.models.Produto
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class TelaCliente() : ComponentActivity()
@@ -218,3 +215,4 @@ fun Clientes() {
     }
 
 }
+

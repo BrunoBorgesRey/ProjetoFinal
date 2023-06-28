@@ -45,6 +45,7 @@ import org.koin.java.KoinJavaComponent.getKoin
 class TelaProduto : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             Produtos()
         }
@@ -57,11 +58,15 @@ fun Produtos() {
     val repository = getProdutoRepository()
     val coroutineScope = rememberCoroutineScope()
     val contexto = LocalContext.current
+
+
 //    val estadoCampoDeTextoIdProduto = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoDescricao = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoValor = remember { mutableStateOf(TextFieldValue()) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
     var selectedImageUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
+
+
     var singlePhotoPickerLaucher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(),
             onResult = { uri -> selectedImageUri = uri })
@@ -219,20 +224,9 @@ fun Produtos() {
 
             Button(onClick = {
                 Log.i("TelaProduto", "Botao Listar")
+                contexto.startActivity(Intent(contexto, ListaProduto::class.java))
             }, modifier = Modifier.width(300.dp)) {
                 Text(text = "Listar", style = TextStyle(
-                    fontSize = 18.sp,
-                ),
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,)
-            }
-            Spacer(modifier = Modifier.height(25.dp))
-        }
-        item {
-            Button(onClick = {
-                Log.i("TelaProduto", "Botao Deletar")
-            }, modifier = Modifier.width(300.dp)) {
-                Text(text = "Deletar", style = TextStyle(
                     fontSize = 18.sp,
                 ),
                     fontWeight = FontWeight.Bold,
@@ -275,6 +269,7 @@ fun Produtos() {
 //        inputStream?.readBytes()
 //    }
 //}
+
 
 
 
