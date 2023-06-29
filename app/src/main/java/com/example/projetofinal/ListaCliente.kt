@@ -1,4 +1,5 @@
 package com.example.projetofinal
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -16,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -56,6 +58,7 @@ fun ListaClientes(clientes: List<Cliente>) {
 @Composable
 fun ProductItem(cliente: Cliente) {
     val repository = getProdutoRepository()
+    val contexto = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -85,6 +88,17 @@ fun ProductItem(cliente: Cliente) {
             modifier = Modifier.width(100.dp)
         ) {
             Text(text = "Deletar")
+        }
+        Button(
+            onClick = {
+                val intent = Intent(contexto, AlterarCliente::class.java).apply {
+                    putExtra("myStringExtra", cliente.id)
+                }
+                contexto.startActivity(intent)
+            },
+            modifier = Modifier.width(100.dp)
+        ) {
+            Text(text = "Alterar")
         }
     }
 }

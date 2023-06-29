@@ -22,10 +22,16 @@
             android:name=".ListaCliente"
             android:exported="false" />
         <activity
+            android:name=".AlterarCliente"
+            android:exported="false" />
+        <activity
             android:name=".TelaProduto"
             android:exported="false" />
         <activity
             android:name=".ListaProduto"
+            android:exported="false" />
+        <activity
+            android:name=".AlterarProduto"
             android:exported="false" />
         <activity
             android:name=".TelaPedido"

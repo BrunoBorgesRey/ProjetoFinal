@@ -223,6 +223,18 @@ class ProdutoRepository(
         document.set(produtoAlteradoDocumento).await()
     }
 
+    suspend fun editarCliente(id: String, clienteAlterado: Cliente) {
+        val document = firestore.collection(COLECAO_FIRESTORE_CLIENTES).document(id)
+        val clienteAlteradoDocumento = ClienteDocumento(
+            cpf = clienteAlterado.cpf,
+            nome = clienteAlterado.nome,
+            telefone = clienteAlterado.telefone,
+            endereco = clienteAlterado.endereco,
+            instagram = clienteAlterado.instagram
+        )
+        document.set(clienteAlteradoDocumento).await()
+    }
+
     private fun converteParaProduto(documento: DocumentSnapshot): Produto? =
         documento.toObject<ProdutoDocumento>()?.paraProduto(documento.id)
 

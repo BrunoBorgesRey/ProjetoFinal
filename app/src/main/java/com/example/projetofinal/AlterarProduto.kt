@@ -1,6 +1,5 @@
 package com.example.projetofinal
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -10,14 +9,26 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,48 +41,38 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.projetofinal.models.Produto
-import com.example.projetofinal.repository.ProdutoRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.koin.java.KoinJavaComponent.getKoin
 
-class TelaProduto : ComponentActivity() {
+class AlterarProduto : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
-            Produtos()
+            val receivedString = intent.getStringExtra("myStringExtra")
+            AlterarProdutoTela(receivedString)
         }
     }
 }
 
-@Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun Produtos() {
+@Composable
+fun AlterarProdutoTela(idproduto: String?) {
     val repository = getProdutoRepository()
     val coroutineScope = rememberCoroutineScope()
     val contexto = LocalContext.current
-
-//    val estadoCampoDeTextoIdProduto = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoDescricao = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoValor = remember { mutableStateOf(TextFieldValue()) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var selectedImageUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
 
-
-    var singlePhotoPickerLaucher =
+    val singlePhotoPickerLaucher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(),
             onResult = { uri -> selectedImageUri = uri })
-    var multiplePhotoPickerLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.PickMultipleVisualMedia(),
-            onResult = { uris -> selectedImageUris = uris })
 
     LazyColumn(
         Modifier
@@ -82,7 +83,7 @@ fun Produtos() {
     ) {
         item {
             Text(
-                text = "Tela de Produto",
+                text = "Alterar Produto",
                 fontStyle = FontStyle.Normal,
                 style = TextStyle(
                     fontSize = 24.sp,
@@ -104,7 +105,7 @@ fun Produtos() {
                     fontSize = 18.sp,
                 ),
                     fontWeight = FontWeight.Bold,
-                    ) },
+                ) },
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.None,//Sem restrições (letras/números).
                     autoCorrect = true,
@@ -128,7 +129,7 @@ fun Produtos() {
                     fontSize = 18.sp,
                 ),
                     fontWeight = FontWeight.Bold,
-                    ) },
+                ) },
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.None,//Sem restrições (letras/números).
                     autoCorrect = true,
@@ -162,13 +163,7 @@ fun Produtos() {
                         textAlign = TextAlign.Center,
                     )
                 }
-                Button(onClick = {
-                    multiplePhotoPickerLauncher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
-                }) {
-                    Text(text = "Selecione multiplas fotos")
-                }
+
                 AsyncImage(
                     model = selectedImageUri,
                     contentDescription = null,
@@ -181,7 +176,7 @@ fun Produtos() {
         }
         item {
             Button(onClick = {
-                Log.i("TelaProduto Inserir", "Botao Inserir")
+                Log.i("TelaProduto Inserir", "Botao Alterar")
                 val descricao = estadoCampoDeTextoDescricao.value.text
                 val valor = estadoCampoDeTextoValor.value.text.toDoubleOrNull()
                 val fotoUri = selectedImageUri
@@ -197,9 +192,11 @@ fun Produtos() {
                             inputStream?.readBytes()
                         }
                         produto.foto = fotoByteArray.toString()
-                        Log.i("TelaProduto Inserir", "$produto, $fotoByteArray" )
+                        Log.i("TelaProduto Alterar", "$produto, $fotoByteArray" )
                         if (fotoByteArray != null) {
-                            repository.salva(produto, fotoByteArray)
+                            if (idproduto != null) {
+                                repository.editar(idproduto, produto)
+                            }
                         } else {
                             // TODO Lidar com a falha ao obter o ByteArray da imagem
                         }
@@ -208,9 +205,9 @@ fun Produtos() {
                     // Lidar com dados inválidos
                     Log.e("TelaProduto Inserir", "Erro ao inserir")
                 }
-                Log.i("TelaProduto", "Botao Inserir")
+                Log.i("TelaProduto", "Botao Alterar")
             }, modifier = Modifier.width(300.dp)) {
-                Text(text = "Inserir", fontStyle = FontStyle.Normal,
+                Text(text = "Alterar", fontStyle = FontStyle.Normal,
                     style = TextStyle(
                         fontSize = 18.sp,
                     ),
@@ -220,23 +217,9 @@ fun Produtos() {
             Spacer(modifier = Modifier.height(25.dp))
         }
         item {
-
-            Button(onClick = {
-                Log.i("TelaProduto", "Botao Listar")
-                contexto.startActivity(Intent(contexto, ListaProduto::class.java))
-            }, modifier = Modifier.width(300.dp)) {
-                Text(text = "Listar", style = TextStyle(
-                    fontSize = 18.sp,
-                ),
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,)
-            }
-            Spacer(modifier = Modifier.height(25.dp))
-        }
-        item {
             Button(onClick = {
                 Log.i("TelaProduto", "Botao Voltar Produto")
-                contexto.startActivity(Intent(contexto, MainActivity::class.java))
+                contexto.startActivity(Intent(contexto, ListaProduto::class.java))
             }, modifier = Modifier.width(300.dp)) {
                 Text(text = "Voltar", style = TextStyle(
                     fontSize = 18.sp,
@@ -246,32 +229,4 @@ fun Produtos() {
             }
         }
     }
-
 }
-
-//private suspend fun getByteArrayFromUri(uri: Uri): ByteArray? {
-//    val context = LocalContext.current
-//    return withContext(Dispatchers.IO) {
-//        val inputStream = context.contentResolver.openInputStream(uri)
-//        inputStream?.readBytes()
-//    }
-//}
-
-
-
-
-
-@Composable
-fun getProdutoRepository(): ProdutoRepository {
-    Log.i("TelaProduto", "chegou no método getProdutoRepository() ")
-    val produtoRepository by getKoin().inject<ProdutoRepository>()
-    Log.i("TelaProduto", "getProdutoRepository() $produtoRepository")
-    return produtoRepository
-}
-
-@Preview(showSystemUi = true)
-@Composable
-fun ProdutosPreview() {
-    Produtos()
-}
-
