@@ -1,4 +1,4 @@
-package com.example.projetofinal
+package com.example.projetofinal.telas.pedido
 
 import android.app.Activity
 import android.content.Intent
@@ -31,6 +31,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import com.example.projetofinal.telas.MainActivity
+import com.example.projetofinal.telas.produto.getProdutoRepository
 
 
 class TelaPedido() : ComponentActivity()

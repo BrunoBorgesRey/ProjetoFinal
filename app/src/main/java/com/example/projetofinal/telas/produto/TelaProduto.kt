@@ -1,10 +1,10 @@
-package com.example.projetofinal
+package com.example.projetofinal.telas.produto
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -30,13 +30,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LiveData
 import coil.compose.AsyncImage
 import com.example.projetofinal.models.Produto
 import com.example.projetofinal.repository.ProdutoRepository
+import com.example.projetofinal.telas.MainActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -45,7 +46,6 @@ import org.koin.java.KoinJavaComponent.getKoin
 class TelaProduto : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
             Produtos()
         }
@@ -58,20 +58,16 @@ fun Produtos() {
     val repository = getProdutoRepository()
     val coroutineScope = rememberCoroutineScope()
     val contexto = LocalContext.current
-
 //    val estadoCampoDeTextoIdProduto = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoDescricao = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoValor = remember { mutableStateOf(TextFieldValue()) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-    var selectedImageUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
-
-
+//    var selectedImageUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
     var singlePhotoPickerLaucher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(),
             onResult = { uri -> selectedImageUri = uri })
-    var multiplePhotoPickerLauncher =
-        rememberLauncherForActivityResult(contract = ActivityResultContracts.PickMultipleVisualMedia(),
-            onResult = { uris -> selectedImageUris = uris })
+
+    var produto: Produto? = null
 
     LazyColumn(
         Modifier
@@ -100,11 +96,15 @@ fun Produtos() {
                     estadoCampoDeTextoDescricao.value = it
                 },
                 modifier = Modifier.height(60.dp),
-                placeholder = { Text(text = "Insira a Descrição", style = TextStyle(
-                    fontSize = 18.sp,
-                ),
-                    fontWeight = FontWeight.Bold,
-                    ) },
+                placeholder = {
+                    Text(
+                        text = "Insira a Descrição",
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                        ),
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.None,//Sem restrições (letras/números).
                     autoCorrect = true,
@@ -124,11 +124,15 @@ fun Produtos() {
                 onValueChange = {
                     estadoCampoDeTextoValor.value = it
                 },
-                placeholder = { Text(text = "Insira o Valor", style = TextStyle(
-                    fontSize = 18.sp,
-                ),
-                    fontWeight = FontWeight.Bold,
-                    ) },
+                placeholder = {
+                    Text(
+                        text = "Insira o Valor",
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                        ),
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.None,//Sem restrições (letras/números).
                     autoCorrect = true,
@@ -162,13 +166,13 @@ fun Produtos() {
                         textAlign = TextAlign.Center,
                     )
                 }
-                Button(onClick = {
-                    multiplePhotoPickerLauncher.launch(
-                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                    )
-                }) {
-                    Text(text = "Selecione multiplas fotos")
-                }
+//                Button(onClick = {
+//                    multiplePhotoPickerLauncher.launch(
+//                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+//                    )
+//                }) {
+//                    Text(text = "Selecione multiplas fotos")
+//                }
                 AsyncImage(
                     model = selectedImageUri,
                     contentDescription = null,
@@ -180,86 +184,128 @@ fun Produtos() {
             }
         }
         item {
-            Button(onClick = {
-                Log.i("TelaProduto Inserir", "Botao Inserir")
-                val descricao = estadoCampoDeTextoDescricao.value.text
-                val valor = estadoCampoDeTextoValor.value.text.toDoubleOrNull()
-                val fotoUri = selectedImageUri
+            val isButtonEnabled = remember { mutableStateOf(false) }
+            Button(
+                enabled = estadoCampoDeTextoDescricao.value.text.isNotEmpty() &&
+                        estadoCampoDeTextoValor.value.text.isNotEmpty() &&
+                        selectedImageUri != null,
+                onClick = {
+                    Log.i("TelaProduto Inserir", "Botao Inserir")
+                    val descricao = estadoCampoDeTextoDescricao.value.text
+                    val valor = estadoCampoDeTextoValor.value.text.toDoubleOrNull()
+                    val fotoUri = selectedImageUri
+                    isButtonEnabled.value = false
 
-                if (descricao.isNotEmpty() && valor != null && fotoUri != null) {
-                    val produto = Produto(descricao = descricao, preco = valor)
-
-//                     Inicie uma coroutine para buscar o ByteArray da imagem
-                    coroutineScope.launch {
-                        val fotoByteArray = withContext(Dispatchers.IO) {
+                    if (descricao.isNotEmpty() && valor != null && fotoUri != null) {
+                        val produto = Produto(descricao = descricao, preco = valor)
+//                  Inicie uma coroutine para buscar o ByteArray da imagem
+                        coroutineScope.launch {
+                            val fotoByteArray = withContext(Dispatchers.IO) {
 //                     TODO: remover esse código para uma função específica ->  getByteArrayFromUri(fotoUri)
-                            val inputStream = contexto.contentResolver.openInputStream(fotoUri)
-                            inputStream?.readBytes()
+                                val inputStream = contexto.contentResolver.openInputStream(fotoUri)
+//                            inputStream?.readBytes()
+                                val bytes = inputStream?.readBytes()
+                                inputStream?.close()
+                                bytes
+                            }
+                            produto.foto = fotoByteArray.toString()
+                            Log.i("TelaProduto Inserir", "fotoByteArray: $produto.foto?.isBlank()")
+                            println("Valor de $produto.foto?.isBlank()")
+
+
+                            while (produto.foto?.isBlank() == true) {
+                                println("Valor de $produto.foto?.isBlank()")
+                                Log.i("TelaProduto fotoByteArray", "fotoByteArray: $fotoByteArray")
+                                if (fotoByteArray != null) {
+                                    Log.i("fotoByteArray", "fotoByteArray: $fotoByteArray")
+                                    isButtonEnabled.value = true
+                                    break
+                                }
+                                isButtonEnabled.value = false
+                            }
+
+
+                            if (produto.foto?.isBlank() == true) {
+                                Toast.makeText(contexto, "Selecione uma foto", Toast.LENGTH_LONG)
+                                    .show()
+                            }
+
+
+                            val resultado: LiveData<Boolean> = repository.salva(produto, fotoByteArray!!)
+
+                            if (resultado.value == true) {
+                                Toast.makeText(
+                                    contexto,
+                                    "Produto ${produto.descricao} salva com sucesso",
+                                    Toast.LENGTH_LONG
+                                ).show()
+
+                                estadoCampoDeTextoDescricao.value = TextFieldValue("")
+                                estadoCampoDeTextoValor.value = TextFieldValue("")
+                                selectedImageUri = null
+                            } else {
+                                // TODO Lidar com a falha ao obter o ByteArray da imagem
+                                Toast.makeText(
+                                    contexto,
+                                    "Houve algum erro ao salvar o produto ${produto.descricao}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                Log.e("TelaProduto Inserir", "Erro ao inserir")
+                            }
                         }
-                        produto.foto = fotoByteArray.toString()
-                        Log.i("TelaProduto Inserir", "$produto, $fotoByteArray" )
-                        if (fotoByteArray != null) {
-                            repository.salva(produto, fotoByteArray)
-                        } else {
-                            // TODO Lidar com a falha ao obter o ByteArray da imagem
-                        }
+                    } else {
+                        // TODO Lidar com dados inválidos
+                        Log.e("TelaProduto Inserir", "Erro ao inserir")
                     }
-                } else {
-                    // Lidar com dados inválidos
-                    Log.e("TelaProduto Inserir", "Erro ao inserir")
-                }
-                Log.i("TelaProduto", "Botao Inserir")
-            }, modifier = Modifier.width(300.dp)) {
-                Text(text = "Inserir", fontStyle = FontStyle.Normal,
+                    Log.i("TelaProduto", "Botao Inserir")
+                },
+                modifier = Modifier.width(300.dp)
+            ) {
+                Text(
+                    text = "Inserir", fontStyle = FontStyle.Normal,
                     style = TextStyle(
                         fontSize = 18.sp,
                     ),
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,)
+                    textAlign = TextAlign.Center,
+                )
             }
             Spacer(modifier = Modifier.height(25.dp))
         }
         item {
-
             Button(onClick = {
                 Log.i("TelaProduto", "Botao Listar")
                 contexto.startActivity(Intent(contexto, ListaProduto::class.java))
             }, modifier = Modifier.width(300.dp)) {
-                Text(text = "Listar", style = TextStyle(
-                    fontSize = 18.sp,
-                ),
+                Text(
+                    text = "Listar",
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                    ),
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,)
+                    textAlign = TextAlign.Center,
+                )
             }
             Spacer(modifier = Modifier.height(25.dp))
         }
+
         item {
             Button(onClick = {
                 Log.i("TelaProduto", "Botao Voltar Produto")
                 contexto.startActivity(Intent(contexto, MainActivity::class.java))
             }, modifier = Modifier.width(300.dp)) {
-                Text(text = "Voltar", style = TextStyle(
-                    fontSize = 18.sp,
-                ),
+                Text(
+                    text = "Voltar",
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                    ),
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,)
+                    textAlign = TextAlign.Center,
+                )
             }
         }
     }
-
 }
-
-//private suspend fun getByteArrayFromUri(uri: Uri): ByteArray? {
-//    val context = LocalContext.current
-//    return withContext(Dispatchers.IO) {
-//        val inputStream = context.contentResolver.openInputStream(uri)
-//        inputStream?.readBytes()
-//    }
-//}
-
-
-
-
 
 @Composable
 fun getProdutoRepository(): ProdutoRepository {
@@ -269,9 +315,18 @@ fun getProdutoRepository(): ProdutoRepository {
     return produtoRepository
 }
 
-@Preview(showSystemUi = true)
-@Composable
-fun ProdutosPreview() {
-    Produtos()
-}
+
+//private suspend fun getByteArrayFromUri(uri: Uri): ByteArray? {
+//    val context = LocalContext.current
+//    return withContext(Dispatchers.IO) {
+//        val inputStream = context.contentResolver.openInputStream(uri)
+//        inputStream?.readBytes()
+//    }
+//}
+
+//@Preview(showSystemUi = true)
+//@Composable
+//fun ProdutosPreview() {
+//    Produtos()
+//}
 

@@ -15,22 +15,40 @@ import java.util.UUID
 private const val COLECAO_FIRESTORE_PRODUTOS = "produtos"
 private const val COLECAO_FIRESTORE_CLIENTES = "clientes"
 
+
+private const val TAG = "ProdutoRepository"
 class ProdutoRepository(
     private val firestore: FirebaseFirestore, private val storage: FirebaseStorage
 ) {
 
-    fun buscaPorId(id: String): LiveData<Produto> = MutableLiveData<Produto>().apply {
+//    fun buscaPorId(id: String): LiveData<Produto> = MutableLiveData<Produto>().apply {
+//        firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
+//            .document(id)
+//            .addSnapshotListener { s, _ ->
+//                s?.let { documento ->
+//                    converteParaProduto(documento)
+//                        ?.let { produto ->
+//                            value = produto
+//                        }
+//                }
+//            }
+//    }
+
+    suspend fun buscaPorId(id: String, callback: (Produto?) -> Unit) {
+
         firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
             .document(id)
-            .addSnapshotListener { s, _ ->
-                s?.let { documento ->
-                    converteParaProduto(documento)
-                        ?.let { produto ->
-                            value = produto
-                        }
-                }
+            .get()
+            .addOnSuccessListener { document ->
+                val produto = converteParaProduto(document)
+                callback(produto)
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "Erro ao buscar o produto por ID", exception)
+                callback(null)
             }
     }
+
 
 //    suspend fun enviaImagem(produtoId: String, foto: ByteArray) {
 //        GlobalScope.launch {
@@ -102,16 +120,22 @@ class ProdutoRepository(
                 "id" to produto.id,
                 "descricao" to produto.descricao,
                 "preco" to produto.preco.toDouble(),
-
                 )
 
             Log.i("ProdutoRepository", "produtoMapeado: ${produtoMapeado}")
-            colecao.document(produto.id)
-                .set(produtoMapeado)
+//            colecao.document(produto.id)
+//                .set(produtoMapeado)
+//                .addOnSuccessListener {
+//                    Log.d("FireStore", "save: produto salvo")
+//                }.addOnFailureListener {
+//                   e -> Log.w("FireStore", "save: produto erro ${e}")
+//                }
+
+            colecao.add(produtoMapeado)
                 .addOnSuccessListener {
                     Log.d("FireStore", "save: produto salvo")
                 }.addOnFailureListener {
-                   e -> Log.w("FireStore", "save: produto erro ${e}")
+                        e -> Log.w("FireStore", "save: produto erro ${e}")
                 }
 
             enviaImagem(produto.id, foto)
@@ -124,7 +148,7 @@ class ProdutoRepository(
             val colecao = firestore.collection(COLECAO_FIRESTORE_CLIENTES)
             cliente.id = UUID.randomUUID().toString()
             Log.i("ProdutoRepository", "Informações do ID $cliente.id")
-            val produtoMapeado = mapOf<String, Any>(
+            val clienteMapeado = mapOf<String, Any>(
                 "id" to cliente.id,
                 "descricao" to cliente.cpf,
                 "nome" to cliente.nome,
@@ -133,14 +157,15 @@ class ProdutoRepository(
                 "instagram" to cliente.instagram,
                 )
 
-            Log.i("ProdutoRepository", "produtoMapeado: ${produtoMapeado}")
+            Log.i("ProdutoRepository", "produtoMapeado: ${clienteMapeado}")
             colecao.document(cliente.id)
-                .set(produtoMapeado)
+                .set(clienteMapeado)
                 .addOnSuccessListener {
                     Log.d("FireStore", "save: produto salvo")
                 }.addOnFailureListener {
                         e -> Log.w("FireStore", "save: produto erro ${e}")
                 }
+
 
 
             value = true

@@ -1,9 +1,10 @@
-package com.example.projetofinal
+package com.example.projetofinal.telas.produto
 
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -50,11 +51,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+private const val TAG = "AlterarProduto"
+
 class AlterarProduto : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val receivedString = intent.getStringExtra("myStringExtra")
+            Log.i(TAG, "onCreate: $receivedString")
             AlterarProdutoTela(receivedString)
         }
     }
@@ -81,6 +85,56 @@ fun AlterarProdutoTela(idproduto: String?) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+
+        Log.i(TAG, "AlterarProdutoTela: idproduto: $idproduto")
+//        coroutineScope.launch {
+//
+//            if (idproduto != null) {
+//                repository.buscaPorId(idproduto).let { produto ->
+//                    Log.i(TAG, "AlterarProdutoTela: PRODUTO ${produto}")
+//                    Log.i(TAG, "AlterarProdutoTela: PRODUTO VALUE ${produto.value}")
+//                    estadoCampoDeTextoDescricao.value =
+//                        TextFieldValue(produto.value?.descricao.toString())
+//                    Log.i(TAG, "AlterarProdutoTela: ${produto.value?.descricao}")
+//                    estadoCampoDeTextoValor.value = TextFieldValue(produto.value?.preco.toString())
+//                    Log.i(TAG, "AlterarProdutoTela: ${produto.value?.preco}")
+//                    selectedImageUri = Uri.parse(produto.value?.foto.toString())
+//                    Log.i(TAG, "AlterarProdutoTela: ${produto.value?.foto}")
+//                }
+//            } else {
+//                Log.i(TAG, "AlterarProdutoTela: idproduto é nulo")
+//                Toast.makeText(contexto, "Produto não encontrado", Toast.LENGTH_SHORT).show()
+//            }
+//
+//        }
+
+        if(idproduto != null) {
+            coroutineScope.launch {
+                repository.buscaPorId(idproduto) { produto ->
+                    produto?.let {
+                        Log.i(TAG, "AlterarProdutoTela: PRODUTO ${produto.toString()}")
+
+                        estadoCampoDeTextoDescricao.value = TextFieldValue(text = produto.descricao)
+                        Log.i(TAG, "AlterarProdutoTela: ${produto.descricao}")
+                        estadoCampoDeTextoValor.value = estadoCampoDeTextoValor.value.copy(text = produto.preco.toString())
+                        Log.i(TAG, "AlterarProdutoTela: ${produto.preco}")
+                        selectedImageUri = Uri.parse(produto.foto.toString())
+                        Log.i(TAG, "AlterarProdutoTela: ${produto.foto}")
+                    } ?: run {
+                        Log.i(TAG, "AlterarProdutoTela: Produto é nulo")
+                        Toast.makeText(contexto, "Produto não encontrado", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+        } else  {
+                Log.i(TAG, "AlterarProdutoTela: idproduto é nulo")
+                Toast.makeText(contexto, "Produto não encontrado", Toast.LENGTH_SHORT).show()
+
+
+        }
+
+
         item {
             Text(
                 text = "Alterar Produto",
@@ -101,11 +155,15 @@ fun AlterarProdutoTela(idproduto: String?) {
                     estadoCampoDeTextoDescricao.value = it
                 },
                 modifier = Modifier.height(60.dp),
-                placeholder = { Text(text = "Insira a Descrição", style = TextStyle(
-                    fontSize = 18.sp,
-                ),
-                    fontWeight = FontWeight.Bold,
-                ) },
+                placeholder = {
+                    Text(
+                        text = "Insira a Descrição",
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                        ),
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.None,//Sem restrições (letras/números).
                     autoCorrect = true,
@@ -125,11 +183,15 @@ fun AlterarProdutoTela(idproduto: String?) {
                 onValueChange = {
                     estadoCampoDeTextoValor.value = it
                 },
-                placeholder = { Text(text = "Insira o Valor", style = TextStyle(
-                    fontSize = 18.sp,
-                ),
-                    fontWeight = FontWeight.Bold,
-                ) },
+                placeholder = {
+                    Text(
+                        text = "Insira o Valor",
+                        style = TextStyle(
+                            fontSize = 18.sp,
+                        ),
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
                 keyboardOptions = KeyboardOptions(
                     capitalization = KeyboardCapitalization.None,//Sem restrições (letras/números).
                     autoCorrect = true,
@@ -192,7 +254,7 @@ fun AlterarProdutoTela(idproduto: String?) {
                             inputStream?.readBytes()
                         }
                         produto.foto = fotoByteArray.toString()
-                        Log.i("TelaProduto Alterar", "$produto, $fotoByteArray" )
+                        Log.i("TelaProduto Alterar", "$produto, $fotoByteArray")
                         if (fotoByteArray != null) {
                             if (idproduto != null) {
                                 repository.editar(idproduto, produto)
@@ -207,12 +269,14 @@ fun AlterarProdutoTela(idproduto: String?) {
                 }
                 Log.i("TelaProduto", "Botao Alterar")
             }, modifier = Modifier.width(300.dp)) {
-                Text(text = "Alterar", fontStyle = FontStyle.Normal,
+                Text(
+                    text = "Alterar", fontStyle = FontStyle.Normal,
                     style = TextStyle(
                         fontSize = 18.sp,
                     ),
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,)
+                    textAlign = TextAlign.Center,
+                )
             }
             Spacer(modifier = Modifier.height(25.dp))
         }
@@ -221,11 +285,14 @@ fun AlterarProdutoTela(idproduto: String?) {
                 Log.i("TelaProduto", "Botao Voltar Produto")
                 contexto.startActivity(Intent(contexto, ListaProduto::class.java))
             }, modifier = Modifier.width(300.dp)) {
-                Text(text = "Voltar", style = TextStyle(
-                    fontSize = 18.sp,
-                ),
+                Text(
+                    text = "Voltar",
+                    style = TextStyle(
+                        fontSize = 18.sp,
+                    ),
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,)
+                    textAlign = TextAlign.Center,
+                )
             }
         }
     }

@@ -1,7 +1,6 @@
-package com.example.projetofinal
+package com.example.projetofinal.telas.produto
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Row
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -23,40 +23,39 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.LiveData
-import com.example.projetofinal.models.Cliente
+import com.example.projetofinal.models.Produto
 
 
 
-class ListaCliente : ComponentActivity() {
+class ListaProduto : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val repository = getProdutoRepository()
-            Log.i("ListaCliente","ComecaBusca")
-            val clientesLiveData = repository.buscaTodosCliente()
-            Log.i("ListaCliente","Acaba Busca")
-            ListaClientesContent(clientesLiveData)
+            val produtosLiveData = repository.buscaTodos()
+            ListaProdutosContent(produtosLiveData)
         }
     }
 }
 
 @Composable
-fun ListaClientesContent(clientesLiveData: LiveData<List<Cliente>>) {
-    val clientesState by clientesLiveData.observeAsState(emptyList())
-    ListaClientes(clientes = clientesState)
+fun ListaProdutosContent(produtosLiveData: LiveData<List<Produto>>) {
+    val produtosState by produtosLiveData.observeAsState(emptyList())
+    ListaProdutos(produtos = produtosState)
 }
 
 @Composable
-fun ListaClientes(clientes: List<Cliente>) {
+fun ListaProdutos(produtos: List<Produto>) {
     LazyColumn {
-        items(clientes) { cliente ->
-            ProductItem(cliente = cliente)
+        items(produtos) { produto ->
+            ProductItem(produto = produto)
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProductItem(cliente: Cliente) {
+fun ProductItem(produto: Produto) {
     val repository = getProdutoRepository()
     val contexto = LocalContext.current
     Row(
@@ -67,7 +66,7 @@ fun ProductItem(cliente: Cliente) {
     ) {
         // Display the product details
         Text(
-            text = cliente.nome,
+            text = produto.descricao,
             style = TextStyle(
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
@@ -75,7 +74,7 @@ fun ProductItem(cliente: Cliente) {
             modifier = Modifier.weight(1f)
         )
         Text(
-            text = cliente.cpf,
+            text = produto.preco.toString(),
             style = TextStyle(
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
@@ -84,15 +83,15 @@ fun ProductItem(cliente: Cliente) {
         )
         Button(
             onClick = {
-                repository.removeCliente(cliente.id) },
+                repository.remove(produto.id) },
             modifier = Modifier.width(100.dp)
         ) {
             Text(text = "Deletar")
         }
         Button(
             onClick = {
-                val intent = Intent(contexto, AlterarCliente::class.java).apply {
-                    putExtra("myStringExtra", cliente.id)
+                val intent = Intent(contexto, AlterarProduto::class.java).apply {
+                    putExtra("myStringExtra", produto.id)
                 }
                 contexto.startActivity(intent)
             },
@@ -102,3 +101,7 @@ fun ProductItem(cliente: Cliente) {
         }
     }
 }
+
+
+
+

@@ -1,4 +1,4 @@
-package com.example.projetofinal
+package com.example.projetofinal.telas
 
 import android.content.Intent
 import android.os.Bundle
@@ -17,6 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.projetofinal.telas.cliente.TelaCliente
+import com.example.projetofinal.telas.pedido.TelaPedido
+import com.example.projetofinal.telas.produto.TelaProduto
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,7 +77,7 @@ fun MenuPrincipal() {
 }
 
 //@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-
-}
+//@Composable
+//fun DefaultPreview() {
+//
+//}

@@ -16,28 +16,28 @@
         android:theme="@style/Theme.ProjetoFinal"
         tools:targetApi="31">
         <activity
-            android:name=".TelaCliente"
+            android:name=".telas.cliente.TelaCliente"
             android:exported="false" />
         <activity
-            android:name=".ListaCliente"
+            android:name=".telas.cliente.ListaCliente"
             android:exported="false" />
         <activity
-            android:name=".AlterarCliente"
+            android:name=".telas.cliente.AlterarCliente"
             android:exported="false" />
         <activity
-            android:name=".TelaProduto"
+            android:name=".telas.produto.TelaProduto"
             android:exported="false" />
         <activity
-            android:name=".ListaProduto"
+            android:name=".telas.produto.ListaProduto"
             android:exported="false" />
         <activity
-            android:name=".AlterarProduto"
+            android:name=".telas.produto.AlterarProduto"
             android:exported="false" />
         <activity
-            android:name=".TelaPedido"
+            android:name=".telas.pedido.TelaPedido"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".telas.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.ProjetoFinal">
