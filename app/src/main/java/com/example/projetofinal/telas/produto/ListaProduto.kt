@@ -1,6 +1,7 @@
 package com.example.projetofinal.telas.produto
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Row
@@ -73,6 +74,7 @@ fun ProductItem(produto: Produto) {
             ),
             modifier = Modifier.weight(1f)
         )
+        Log.i("ListaProduto","nome:${produto.preco}")
         Text(
             text = produto.preco.toString(),
             style = TextStyle(

@@ -87,26 +87,7 @@ fun AlterarProdutoTela(idproduto: String?) {
     ) {
 
         Log.i(TAG, "AlterarProdutoTela: idproduto: $idproduto")
-//        coroutineScope.launch {
-//
-//            if (idproduto != null) {
-//                repository.buscaPorId(idproduto).let { produto ->
-//                    Log.i(TAG, "AlterarProdutoTela: PRODUTO ${produto}")
-//                    Log.i(TAG, "AlterarProdutoTela: PRODUTO VALUE ${produto.value}")
-//                    estadoCampoDeTextoDescricao.value =
-//                        TextFieldValue(produto.value?.descricao.toString())
-//                    Log.i(TAG, "AlterarProdutoTela: ${produto.value?.descricao}")
-//                    estadoCampoDeTextoValor.value = TextFieldValue(produto.value?.preco.toString())
-//                    Log.i(TAG, "AlterarProdutoTela: ${produto.value?.preco}")
-//                    selectedImageUri = Uri.parse(produto.value?.foto.toString())
-//                    Log.i(TAG, "AlterarProdutoTela: ${produto.value?.foto}")
-//                }
-//            } else {
-//                Log.i(TAG, "AlterarProdutoTela: idproduto é nulo")
-//                Toast.makeText(contexto, "Produto não encontrado", Toast.LENGTH_SHORT).show()
-//            }
-//
-//        }
+
 
         if(idproduto != null) {
             coroutineScope.launch {
@@ -243,8 +224,8 @@ fun AlterarProdutoTela(idproduto: String?) {
                 val valor = estadoCampoDeTextoValor.value.text.toDoubleOrNull()
                 val fotoUri = selectedImageUri
 
-                if (descricao.isNotEmpty() && valor != null && fotoUri != null) {
-                    val produto = Produto(descricao = descricao, preco = valor)
+                if (descricao.isNotEmpty() && idproduto != null && valor != null && fotoUri != null) {
+                    val produto = Produto(id= idproduto,descricao = descricao, preco = valor)
 
 //                     Inicie uma coroutine para buscar o ByteArray da imagem
                     coroutineScope.launch {
@@ -256,9 +237,7 @@ fun AlterarProdutoTela(idproduto: String?) {
                         produto.foto = fotoByteArray.toString()
                         Log.i("TelaProduto Alterar", "$produto, $fotoByteArray")
                         if (fotoByteArray != null) {
-                            if (idproduto != null) {
                                 repository.editar(idproduto, produto)
-                            }
                         } else {
                             // TODO Lidar com a falha ao obter o ByteArray da imagem
                         }

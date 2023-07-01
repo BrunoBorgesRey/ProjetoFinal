@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.projetofinal.models.Cliente
+import com.example.projetofinal.models.Pedido
 import com.example.projetofinal.models.Produto
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
@@ -14,6 +15,7 @@ import java.util.UUID
 
 private const val COLECAO_FIRESTORE_PRODUTOS = "produtos"
 private const val COLECAO_FIRESTORE_CLIENTES = "clientes"
+private const val COLECAO_FIRESTORE_PEDIDOS = "pedidos"
 
 
 private const val TAG = "ProdutoRepository"
@@ -170,6 +172,31 @@ class ProdutoRepository(
 
             value = true
         }
+
+    suspend fun salvarpedido(pedido: Pedido): LiveData<Boolean> =
+        MutableLiveData<Boolean>().apply {
+            Log.i("pedidoRepository", "recebendo o pedido $pedido")
+            val colecao = firestore.collection(COLECAO_FIRESTORE_PEDIDOS)
+            pedido.id = UUID.randomUUID().toString()
+            Log.i("ProdutoRepository", "Informações do ID $pedido.id")
+            val produtoMapeado = mapOf<String, Any>(
+                "id" to pedido.id,
+                "cliente" to pedido.cliente,
+
+            )
+
+            Log.i("ProdutoRepository", "produtoMapeado: ${produtoMapeado}")
+            colecao.document(pedido.id)
+                .set(produtoMapeado)
+                .addOnSuccessListener {
+                    Log.d("FireStore", "save: produto salvo")
+                }.addOnFailureListener {
+                        e -> Log.w("FireStore", "save: produto erro ${e}")
+                }
+
+
+            value = true
+        }
     fun buscaTodos(): LiveData<List<Produto>> {
         val liveData = MutableLiveData<List<Produto>>()
         firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
@@ -241,9 +268,10 @@ class ProdutoRepository(
     suspend fun editar(id: String, produtoAlterado: Produto) {
         val document = firestore.collection(COLECAO_FIRESTORE_PRODUTOS).document(id)
         val produtoAlteradoDocumento = ProdutoDocumento(
+            id = produtoAlterado.id,
             descricao = produtoAlterado.descricao,
             foto = produtoAlterado.foto,
-            valor = produtoAlterado.preco
+            preco = produtoAlterado.preco
         )
         document.set(produtoAlteradoDocumento).await()
     }
@@ -269,14 +297,14 @@ class ProdutoRepository(
     private class ProdutoDocumento(
         val id: String = "",
         val descricao: String = "",
-        val valor: Double = 0.0,
+        val preco: Double = 0.0,
         val foto: String? = null,
     ) {
 
         fun paraProduto(id: String): Produto = Produto(
             id = id,
             descricao = descricao,
-            preco = valor,
+            preco = preco,
             foto = foto,
         )
     }
