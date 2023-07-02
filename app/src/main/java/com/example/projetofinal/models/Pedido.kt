@@ -3,8 +3,9 @@ package com.example.projetofinal.models
 import java.util.Date
 
 data class Pedido(
-    val idPedido: String,
-    val data: Date,
-    val listaProduto: MutableList<Produto>,
+    var id: String = "",
+    var data: Date,
+    var cliente: String,
+    var listaProduto: MutableList<Produto>,
 ) {}
 

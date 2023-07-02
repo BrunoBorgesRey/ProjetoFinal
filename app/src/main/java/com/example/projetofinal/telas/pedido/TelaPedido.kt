@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -14,13 +15,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -55,30 +62,19 @@ fun Pedidos() {
     val contexto = LocalContext.current
     val estadoCampoDeTextoIdPedido = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoData = remember { mutableStateOf(TextFieldValue()) }
-    val estadoCampoDeTextoFkCpf = remember { mutableStateOf(TextFieldValue()) }
-    val activity = (LocalContext.current as? Activity)
+
+
+    val clientesLiveData = repository.buscaTodosCliente()
+    val clientesState by clientesLiveData.observeAsState(emptyList())
+
+    var estadoCampoDeTextoFkCpf by remember { mutableStateOf("") }
+    var expanded by remember { mutableStateOf(false) }
+    var selectedText by remember { mutableStateOf("Escolher Cliente") }
+
     Column(
         Modifier.padding(40.dp)
     ) {
         Text(text="Tela de Pedido", textAlign = TextAlign.Center,modifier = Modifier.fillMaxWidth())
-        Spacer(modifier = Modifier.height(10.dp))
-        TextField(
-            value = estadoCampoDeTextoIdPedido.value,
-            onValueChange = {
-                estadoCampoDeTextoIdPedido.value = it
-            },
-            placeholder = { Text(text = "Insira o ID Pedido") },
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.None,//Sem restrições (letras/números).
-                autoCorrect = true,
-            ),
-            textStyle = TextStyle(
-                color = Color.Black,
-                fontSize = TextUnit.Unspecified,
-                fontFamily = FontFamily.SansSerif
-            ),
-            maxLines = 1,
-        )
         Spacer(modifier = Modifier.height(10.dp))
         TextField(
             value = estadoCampoDeTextoData.value,
@@ -98,41 +94,40 @@ fun Pedidos() {
             maxLines = 1,
         )
         Spacer(modifier = Modifier.height(10.dp))
-        TextField(
-            value = estadoCampoDeTextoFkCpf.value,
-            onValueChange = {
-                estadoCampoDeTextoFkCpf.value = it
-            },
-            placeholder = { Text(text = "Insira o CPF do Cliente") },
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.None,//Sem restrições (letras/números).
-                autoCorrect = true,
-            ),
-            textStyle = TextStyle(
-                color = Color.Black,
-                fontSize = TextUnit.Unspecified,
-                fontFamily = FontFamily.SansSerif
-            ),
-            maxLines = 1,
-        )
-        Spacer(modifier = Modifier.height(10.dp))
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = {
+                expanded = !expanded
+            }
+        ) {
+            TextField(
+                value = selectedText,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                modifier = Modifier.menuAnchor()
+            )
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                clientesState.forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(text = item.nome) },
+                        onClick = {
+                            selectedText = item.nome
+                            estadoCampoDeTextoFkCpf = item.id
+                            expanded = false
+                            //Toast.makeText(contexto, item, Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                }
+            }
+        }
         Button(onClick = {
             Log.i("TelaPedido","Botao Inserir")
-            /*val idPedido = estadoCampoDeTextoIdPedido.value.text
-            val data = estadoCampoDeTextoData.value.to
 
-            if (data.isNotEmpty() ) {
-                val pedido = Pedido(
-                    idPedido = idPedido,
-                    data = data ,
-                    listaProduto = ""
-                )
-//                     Inicie uma coroutine para buscar o ByteArray da imagem
-                coroutineScope.launch {
-                    repository.salvarpedido(pedido)
-                    Log.i("TelaCliente", "Botao Inserir")
-                }
-            }*/
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Inserir")
         }
@@ -142,18 +137,6 @@ fun Pedidos() {
 
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Listar")
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        Button(onClick = {
-            Log.i("TelaPedido","Botao Deletar")
-        }, modifier = Modifier.width(300.dp)) {
-            Text(text = "Deletar")
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        Button(onClick = {
-            Log.i("TelaPedido","Botao Alterar")
-        }, modifier = Modifier.width(300.dp)) {
-            Text(text = "Alterar")
         }
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {

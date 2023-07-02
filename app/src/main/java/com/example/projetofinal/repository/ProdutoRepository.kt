@@ -123,7 +123,7 @@ class ProdutoRepository(
             val documento =
                 firestore.collection(COLECAO_FIRESTORE_PRODUTOS).document(produtoAlterado.id)
             val produtoAlteradoDocumento = ProdutoDocumento(
-//            id = produtoAlterado.id,
+                id = produtoAlterado.id,
                 descricao = produtoAlterado.descricao,
 //            foto = produtoAlterado.foto,
                 preco = produtoAlterado.preco
@@ -144,7 +144,7 @@ class ProdutoRepository(
                     docSalvo = false
                 }
 
-            val imagemSalva = enviaImagem(referencia,  produtoAlterado.id, foto)
+            val imagemSalva = enviaImagem(referencia.toString(),  produtoAlterado.id, foto)
 
             value = docSalvo && imagemSalva.value == true
         }
@@ -179,7 +179,7 @@ class ProdutoRepository(
     suspend fun salvarpedido(pedido: Pedido): LiveData<Boolean> = MutableLiveData<Boolean>().apply {
         Log.i("pedidoRepository", "recebendo o pedido $pedido")
         val colecao = firestore.collection(COLECAO_FIRESTORE_PEDIDOS)
-//            pedido.id = UUID.randomUUID().toString()
+            pedido.id = UUID.randomUUID().toString()
         Log.i("ProdutoRepository", "Informações do ID $pedido.id")
         val produtoMapeado = mapOf<String, Any>(
             "id" to pedido.id,
