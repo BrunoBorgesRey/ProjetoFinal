@@ -1,10 +1,9 @@
 package com.example.projetofinal.telas.pedido
 
-import android.app.Activity
+
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -24,6 +24,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import com.example.projetofinal.models.Produto
 import com.example.projetofinal.telas.MainActivity
 import com.example.projetofinal.telas.produto.getProdutoRepository
 
@@ -60,16 +62,21 @@ fun Pedidos() {
     val repository = getProdutoRepository()
     val coroutineScope = rememberCoroutineScope()
     val contexto = LocalContext.current
-    val estadoCampoDeTextoIdPedido = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoData = remember { mutableStateOf(TextFieldValue()) }
 
 
     val clientesLiveData = repository.buscaTodosCliente()
     val clientesState by clientesLiveData.observeAsState(emptyList())
 
+    val produtosLiveData = repository.buscaTodos()
+    val produtosState by produtosLiveData.observeAsState(emptyList())
+
     var estadoCampoDeTextoFkCpf by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
+    var expandedproduto by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf("Escolher Cliente") }
+    var selectedText2 by remember { mutableStateOf("Escolher Produtos") }
+    val selectedProdutos = remember { mutableStateListOf<Produto>() }
 
     Column(
         Modifier.padding(40.dp)
@@ -119,12 +126,46 @@ fun Pedidos() {
                             selectedText = item.nome
                             estadoCampoDeTextoFkCpf = item.id
                             expanded = false
-                            //Toast.makeText(contexto, item, Toast.LENGTH_SHORT).show()
+
                         }
                     )
                 }
             }
         }
+        Spacer(modifier = Modifier.height(10.dp))
+        ExposedDropdownMenuBox(
+            expanded = expandedproduto,
+            onExpandedChange = {
+                expandedproduto = !expandedproduto
+            }
+        ) {
+            TextField(
+                value = selectedText2,
+                onValueChange = {},
+                readOnly = true,
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedproduto) },
+                modifier = Modifier.menuAnchor()
+            )
+
+            ExposedDropdownMenu(
+                expanded = expandedproduto,
+                onDismissRequest = { expandedproduto = false }
+            ) {
+                produtosState.forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(text = item.descricao) },
+                        onClick = {
+                            selectedText2 = item.descricao
+                            //estadoCampoDeTextoFkCpf = item.id
+                            expandedproduto = false
+
+                        }
+                    )
+                }
+            }
+        }
+
+
         Button(onClick = {
             Log.i("TelaPedido","Botao Inserir")
 
