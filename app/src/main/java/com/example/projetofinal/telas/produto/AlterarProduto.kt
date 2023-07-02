@@ -111,8 +111,6 @@ fun AlterarProdutoTela(idproduto: String?) {
         } else  {
                 Log.i(TAG, "AlterarProdutoTela: idproduto é nulo")
                 Toast.makeText(contexto, "Produto não encontrado", Toast.LENGTH_SHORT).show()
-
-
         }
 
 

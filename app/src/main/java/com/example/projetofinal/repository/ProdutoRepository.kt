@@ -51,6 +51,21 @@ class ProdutoRepository(
             }
     }
 
+    suspend fun buscaPorIdCliente(id: String, callback: (Cliente?) -> Unit) {
+
+        firestore.collection(COLECAO_FIRESTORE_CLIENTES)
+            .document(id)
+            .get()
+            .addOnSuccessListener { document ->
+                val cliente = converteParaCliente(document)
+                callback(cliente)
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "Erro ao buscar o cliente por ID", exception)
+                callback(null)
+            }
+    }
+
 
 //    suspend fun enviaImagem(produtoId: String, foto: ByteArray) {
 //        GlobalScope.launch {
@@ -152,7 +167,7 @@ class ProdutoRepository(
             Log.i("ProdutoRepository", "Informações do ID $cliente.id")
             val clienteMapeado = mapOf<String, Any>(
                 "id" to cliente.id,
-                "descricao" to cliente.cpf,
+                "cpf" to cliente.cpf,
                 "nome" to cliente.nome,
                 "telefone" to cliente.telefone,
                 "endereco" to cliente.endereco,
@@ -279,6 +294,7 @@ class ProdutoRepository(
     suspend fun editarCliente(id: String, clienteAlterado: Cliente) {
         val document = firestore.collection(COLECAO_FIRESTORE_CLIENTES).document(id)
         val clienteAlteradoDocumento = ClienteDocumento(
+            id = clienteAlterado.id,
             cpf = clienteAlterado.cpf,
             nome = clienteAlterado.nome,
             telefone = clienteAlterado.telefone,
