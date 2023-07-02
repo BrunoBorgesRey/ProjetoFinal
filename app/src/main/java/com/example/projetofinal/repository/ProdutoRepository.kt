@@ -12,13 +12,15 @@ import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
+import kotlin.math.log
 
 private const val COLECAO_FIRESTORE_PRODUTOS = "produtos"
 private const val COLECAO_FIRESTORE_CLIENTES = "clientes"
 private const val COLECAO_FIRESTORE_PEDIDOS = "pedidos"
 
 
-private const val TAG = "ProdutoRepository"
+private const val TAG = "Repository"
+
 class ProdutoRepository(
     private val firestore: FirebaseFirestore, private val storage: FirebaseStorage
 ) {
@@ -38,14 +40,11 @@ class ProdutoRepository(
 
     suspend fun buscaPorId(id: String, callback: (Produto?) -> Unit) {
 
-        firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
-            .document(id)
-            .get()
+        firestore.collection(COLECAO_FIRESTORE_PRODUTOS).document(id).get()
             .addOnSuccessListener { document ->
                 val produto = converteParaProduto(document)
                 callback(produto)
-            }
-            .addOnFailureListener { exception ->
+            }.addOnFailureListener { exception ->
                 Log.e(TAG, "Erro ao buscar o produto por ID", exception)
                 callback(null)
             }
@@ -53,110 +52,101 @@ class ProdutoRepository(
 
     suspend fun buscaPorIdCliente(id: String, callback: (Cliente?) -> Unit) {
 
-        firestore.collection(COLECAO_FIRESTORE_CLIENTES)
-            .document(id)
-            .get()
+        firestore.collection(COLECAO_FIRESTORE_CLIENTES).document(id).get()
             .addOnSuccessListener { document ->
                 val cliente = converteParaCliente(document)
                 callback(cliente)
-            }
-            .addOnFailureListener { exception ->
+            }.addOnFailureListener { exception ->
                 Log.e(TAG, "Erro ao buscar o cliente por ID", exception)
                 callback(null)
             }
     }
 
+    suspend fun enviaImagem(referencia: String, produtoId: String, foto: ByteArray): LiveData<Boolean> =
+        MutableLiveData<Boolean>().apply {
 
-//    suspend fun enviaImagem(produtoId: String, foto: ByteArray) {
-//        GlobalScope.launch {
-//            try {
-//                val documento = firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
-//                    .document(produtoId)
-//
-//                val referencia = storage.reference.child("produtos/$produtoId.jpg")
-//                referencia.putBytes(foto).await()
-//
-//                val url = referencia.downloadUrl.await()
-//
-//                documento
-//                    .update(mapOf("foto" to url.toString()))
-//                    .await()
-//            } catch (e: Exception) {
-//                Log.e("ENVIAIMAGEM", "enviaImagem: falha ao enviar a imagem", e)
-//            }
-//        }
-//    }
-//    suspend fun salva(produto: Produto, foto: ByteArray): LiveData<Boolean> = MutableLiveData<Boolean>().apply {
-//        val produtoDocumento = ProdutoDocumento(
-//            descricao = produto.descricao,
-//            valor = produto.preco.toDouble(),
-//            foto = produto.foto,
-//        )
-//
-//        val colecao = firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
-//        val documento = produto.id?.let { id ->
-//            colecao.document(id)
-//        } ?: colecao.document()
-//
-//        enviaImagem(documento.id, foto)
-//        value = true
-//    }
+            Log.i(TAG, "enviaImagem: enviando a imagem $foto, produto id $produtoId para o storage")
+            try {
 
-    suspend fun enviaImagem(produtoId: String, foto: ByteArray) {
-        try {
-            val referencia = storage.reference.child("produtos/$produtoId.jpg")
+                if(produtoId.isEmpty() || foto.isEmpty()) {
+                    Log.e(TAG, "Não é possível salar imagem. Motivo: ProdutoId ou foto vazios", Exception("Não é possível salar imagem. Motivo: ProdutoId ou foto vazios"))
+//                    throw Exception("Não é possível salar imagem. Motivo: ProdutoId ou foto vazios")
+                }
 
-            referencia.putBytes(foto).await()
-            val url = referencia.downloadUrl.await()
+                val referencia = storage.reference.child("produtos/$produtoId.jpg")
+                Log.i(TAG, "enviaImagem: referencia do firestore  $referencia")
 
-            val documento = firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
-                .document(produtoId)
-            documento
-                .update("foto", url.toString())
-                .await()
+                referencia.putBytes(foto).await()
+                val url = referencia.downloadUrl.await()
 
-            return
-        } catch (e: Exception) {
-            Log.e("ENVIAIMAGEM", "enviaImagem: falha ao enviar a imagem", e)
+                val documento = firestore.collection(COLECAO_FIRESTORE_PRODUTOS).document(produtoId)
+                documento.update("foto", url.toString()).await()
+
+                value = true
+            } catch (e: Exception) {
+                Log.e(TAG, "Erro ao enviar Imagem: falha ao enviar a imagem ${foto.toString()}, produto id $produtoId", e)
+                value = false
+            }
         }
-    }
 
     suspend fun salva(produto: Produto, foto: ByteArray): LiveData<Boolean> =
         MutableLiveData<Boolean>().apply {
+
             Log.i("ProdutoRepository", "recebendo o produto $produto e a foto $foto")
-
             val colecao = firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
-//            val documento = produtoDocumento.id?.let { id ->
-//                Log.i("ProdutoRepository","Valor id $id")
-//                colecao.document(id)
-//            } ?: colecao.document()
 
-            produto.id = UUID.randomUUID().toString()
-            Log.i("ProdutoRepository", "Informações do ID $produto.id")
             val produtoMapeado = mapOf<String, Any>(
                 "id" to produto.id,
                 "descricao" to produto.descricao,
                 "preco" to produto.preco.toDouble(),
-                )
+            )
 
             Log.i("ProdutoRepository", "produtoMapeado: ${produtoMapeado}")
-//            colecao.document(produto.id)
-//                .set(produtoMapeado)
-//                .addOnSuccessListener {
-//                    Log.d("FireStore", "save: produto salvo")
-//                }.addOnFailureListener {
-//                   e -> Log.w("FireStore", "save: produto erro ${e}")
-//                }
+            produto.id = UUID.randomUUID().toString()
+            Log.i(TAG, "salva: produto ${produto.toString()}")
+            var docSalvo: Boolean = false
+            val referencia = colecao.add(produtoMapeado)
 
-            colecao.add(produtoMapeado)
-                .addOnSuccessListener {
+            referencia.addOnSuccessListener {
+                    docSalvo = true
                     Log.d("FireStore", "save: produto salvo")
-                }.addOnFailureListener {
-                        e -> Log.w("FireStore", "save: produto erro ${e}")
+                }.addOnFailureListener { e ->
+                    Log.w("FireStore", "save: produto erro ${e}")
+                    docSalvo = false
+                }
+            val imagemSalva = enviaImagem(referencia.toString(), produto.id, foto)
+            value = docSalvo && imagemSalva.value == true
+        }
+
+    suspend fun editar(produtoAlterado: Produto, foto: ByteArray) =
+        MutableLiveData<Boolean>().apply {
+            val documento =
+                firestore.collection(COLECAO_FIRESTORE_PRODUTOS).document(produtoAlterado.id)
+            val produtoAlteradoDocumento = ProdutoDocumento(
+//            id = produtoAlterado.id,
+                descricao = produtoAlterado.descricao,
+//            foto = produtoAlterado.foto,
+                preco = produtoAlterado.preco
+            )
+
+            val produtoMapeado = mapOf<String, Any>(
+                "descricao" to produtoAlteradoDocumento.descricao,
+                "preco" to produtoAlteradoDocumento.preco.toDouble(),
+            )
+
+            var docSalvo: Boolean = false
+           val referencia = documento.update(produtoMapeado).addOnSuccessListener {
+                    docSalvo = true
+                    Log.d("FireStore", "save: produto salvo")
+
+                }.addOnFailureListener { e ->
+                    Log.w("FireStore", "save: produto erro ${e}")
+                    docSalvo = false
                 }
 
-            enviaImagem(produto.id, foto)
-            value = true
+            val imagemSalva = enviaImagem(referencia,  produtoAlterado.id, foto)
+
+            value = docSalvo && imagemSalva.value == true
         }
 
     suspend fun salvarcliente(cliente: Cliente): LiveData<Boolean> =
@@ -172,15 +162,13 @@ class ProdutoRepository(
                 "telefone" to cliente.telefone,
                 "endereco" to cliente.endereco,
                 "instagram" to cliente.instagram,
-                )
+            )
 
             Log.i("ProdutoRepository", "produtoMapeado: ${clienteMapeado}")
-            colecao.document(cliente.id)
-                .set(clienteMapeado)
-                .addOnSuccessListener {
+            colecao.document(cliente.id).set(clienteMapeado).addOnSuccessListener {
                     Log.d("FireStore", "save: produto salvo")
-                }.addOnFailureListener {
-                        e -> Log.w("FireStore", "save: produto erro ${e}")
+                }.addOnFailureListener { e ->
+                    Log.w("FireStore", "save: produto erro ${e}")
                 }
 
 
@@ -188,30 +176,29 @@ class ProdutoRepository(
             value = true
         }
 
-    suspend fun salvarpedido(pedido: Pedido): LiveData<Boolean> =
-        MutableLiveData<Boolean>().apply {
-            Log.i("pedidoRepository", "recebendo o pedido $pedido")
-            val colecao = firestore.collection(COLECAO_FIRESTORE_PEDIDOS)
-            pedido.id = UUID.randomUUID().toString()
-            Log.i("ProdutoRepository", "Informações do ID $pedido.id")
-            val produtoMapeado = mapOf<String, Any>(
-                "id" to pedido.id,
-                "cliente" to pedido.cliente,
+    suspend fun salvarpedido(pedido: Pedido): LiveData<Boolean> = MutableLiveData<Boolean>().apply {
+        Log.i("pedidoRepository", "recebendo o pedido $pedido")
+        val colecao = firestore.collection(COLECAO_FIRESTORE_PEDIDOS)
+//            pedido.id = UUID.randomUUID().toString()
+        Log.i("ProdutoRepository", "Informações do ID $pedido.id")
+        val produtoMapeado = mapOf<String, Any>(
+            "id" to pedido.id,
+            "cliente" to pedido.cliente,
+            "produtos" to pedido.listaProduto,
 
             )
 
-            Log.i("ProdutoRepository", "produtoMapeado: ${produtoMapeado}")
-            colecao.document(pedido.id)
-                .set(produtoMapeado)
-                .addOnSuccessListener {
-                    Log.d("FireStore", "save: produto salvo")
-                }.addOnFailureListener {
-                        e -> Log.w("FireStore", "save: produto erro ${e}")
-                }
+        Log.i("ProdutoRepository", "produtoMapeado: ${produtoMapeado}")
+        colecao.document(pedido.id).set(produtoMapeado).addOnSuccessListener {
+                Log.d("FireStore", "save: produto salvo")
+            }.addOnFailureListener { e ->
+                Log.w("FireStore", "save: produto erro ${e}")
+            }
 
 
-            value = true
-        }
+        value = true
+    }
+
     fun buscaTodos(): LiveData<List<Produto>> {
         val liveData = MutableLiveData<List<Produto>>()
         firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
@@ -235,7 +222,7 @@ class ProdutoRepository(
         firestore.collection(COLECAO_FIRESTORE_CLIENTES)
             .addSnapshotListener { snapshot, exception ->
                 if (exception != null) {
-                    Log.e("buscaTodos", "Erro ao buscar produtos: ${exception.message}")
+                    Log.e("buscaTodos", "Erro ao buscar clientes: ${exception.message}")
                     return@addSnapshotListener
                 }
                 snapshot?.let { snapshot ->
@@ -267,29 +254,15 @@ class ProdutoRepository(
     }*/
 
     fun remove(produtoId: String): LiveData<Boolean> = MutableLiveData<Boolean>().apply {
-        firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
-            .document(produtoId)
-            .delete()
+        firestore.collection(COLECAO_FIRESTORE_PRODUTOS).document(produtoId).delete()
         value = true
     }
 
     fun removeCliente(clienteId: String): LiveData<Boolean> = MutableLiveData<Boolean>().apply {
-        firestore.collection(COLECAO_FIRESTORE_CLIENTES)
-            .document(clienteId)
-            .delete()
+        firestore.collection(COLECAO_FIRESTORE_CLIENTES).document(clienteId).delete()
         value = true
     }
 
-    suspend fun editar(id: String, produtoAlterado: Produto) {
-        val document = firestore.collection(COLECAO_FIRESTORE_PRODUTOS).document(id)
-        val produtoAlteradoDocumento = ProdutoDocumento(
-            id = produtoAlterado.id,
-            descricao = produtoAlterado.descricao,
-            foto = produtoAlterado.foto,
-            preco = produtoAlterado.preco
-        )
-        document.set(produtoAlteradoDocumento).await()
-    }
 
     suspend fun editarCliente(id: String, clienteAlterado: Cliente) {
         val document = firestore.collection(COLECAO_FIRESTORE_CLIENTES).document(id)
@@ -324,6 +297,7 @@ class ProdutoRepository(
             foto = foto,
         )
     }
+
     private class ClienteDocumento(
         val id: String = "",
         val cpf: String = "",
@@ -332,7 +306,7 @@ class ProdutoRepository(
         val endereco: String = "",
         val instagram: String = "",
 
-    ) {
+        ) {
 
         fun paraCliente(id: String): Cliente = Cliente(
             id = id,
