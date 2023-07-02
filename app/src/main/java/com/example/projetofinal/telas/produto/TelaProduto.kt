@@ -58,11 +58,11 @@ fun Produtos() {
     val repository = getProdutoRepository()
     val coroutineScope = rememberCoroutineScope()
     val contexto = LocalContext.current
-//    val estadoCampoDeTextoIdProduto = remember { mutableStateOf(TextFieldValue()) }
+
     val estadoCampoDeTextoDescricao = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoValor = remember { mutableStateOf(TextFieldValue()) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
-//    var selectedImageUris by remember { mutableStateOf<List<Uri>>(emptyList()) }
+
     var singlePhotoPickerLaucher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(),
             onResult = { uri -> selectedImageUri = uri })
@@ -166,13 +166,6 @@ fun Produtos() {
                         textAlign = TextAlign.Center,
                     )
                 }
-//                Button(onClick = {
-//                    multiplePhotoPickerLauncher.launch(
-//                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-//                    )
-//                }) {
-//                    Text(text = "Selecione multiplas fotos")
-//                }
                 AsyncImage(
                     model = selectedImageUri,
                     contentDescription = null,
@@ -184,7 +177,7 @@ fun Produtos() {
             }
         }
         item {
-            val isButtonEnabled = remember { mutableStateOf(false) }
+
             Button(
                 enabled = estadoCampoDeTextoDescricao.value.text.isNotEmpty() &&
                         estadoCampoDeTextoValor.value.text.isNotEmpty() &&
@@ -194,7 +187,7 @@ fun Produtos() {
                     val descricao = estadoCampoDeTextoDescricao.value.text
                     val valor = estadoCampoDeTextoValor.value.text.toDoubleOrNull()
                     val fotoUri = selectedImageUri
-                    isButtonEnabled.value = false
+
 
                     if (descricao.isNotEmpty() && valor != null && fotoUri != null) {
                         val produto = Produto(descricao = descricao, preco = valor)
@@ -203,26 +196,21 @@ fun Produtos() {
                             val fotoByteArray = withContext(Dispatchers.IO) {
 //                     TODO: remover esse código para uma função específica ->  getByteArrayFromUri(fotoUri)
                                 val inputStream = contexto.contentResolver.openInputStream(fotoUri)
-//                            inputStream?.readBytes()
                                 val bytes = inputStream?.readBytes()
                                 inputStream?.close()
                                 bytes
                             }
-                            produto.foto = fotoByteArray.toString()
-                            Log.i("TelaProduto Inserir", "fotoByteArray: $produto.foto?.isBlank()")
-                            println("Valor de $produto.foto?.isBlank()")
 
-
-                            while (produto.foto?.isBlank() == true) {
-                                println("Valor de $produto.foto?.isBlank()")
-                                Log.i("TelaProduto fotoByteArray", "fotoByteArray: $fotoByteArray")
-                                if (fotoByteArray != null) {
-                                    Log.i("fotoByteArray", "fotoByteArray: $fotoByteArray")
-                                    isButtonEnabled.value = true
-                                    break
-                                }
-                                isButtonEnabled.value = false
-                            }
+//                            while (produto.foto?.isBlank() == true) {
+//                                println("Valor de $produto.foto?.isBlank()")
+//                                Log.i("TelaProduto fotoByteArray", "fotoByteArray: $fotoByteArray")
+//                                if (fotoByteArray != null) {
+//                                    Log.i("fotoByteArray", "fotoByteArray: $fotoByteArray")
+//                                    isButtonEnabled.value = true
+//                                    break
+//                                }
+//                                isButtonEnabled.value = false
+//                            }
 
 
                             if (produto.foto?.isBlank() == true) {
