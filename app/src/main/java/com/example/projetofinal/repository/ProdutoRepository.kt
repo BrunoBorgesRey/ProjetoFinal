@@ -11,6 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
+import java.util.Date
 import java.util.UUID
 
 
@@ -237,6 +238,24 @@ class ProdutoRepository(
         return liveData
     }
 
+    fun buscaTodosPedido(): LiveData<List<Pedido>> {
+        val liveData = MutableLiveData<List<Pedido>>()
+        firestore.collection(COLECAO_FIRESTORE_PEDIDOS)
+            .addSnapshotListener { snapshot, exception ->
+                if (exception != null) {
+                    Log.e("buscaTodos", "Erro ao buscar pedidos: ${exception.message}")
+                    return@addSnapshotListener
+                }
+                snapshot?.let { snapshot ->
+                    val pedidos: List<Pedido> = snapshot.documents.mapNotNull { documento ->
+                        converteParaPedido(documento)
+                    }
+                    liveData.value = pedidos
+                }
+            }
+        return liveData
+    }
+
 
     /*
      fun buscaTodos(): LiveData<List<Produto>> = MutableLiveData<List<Produto>>().apply {
@@ -265,6 +284,10 @@ class ProdutoRepository(
         value = true
     }
 
+    fun removePedido(pedidoId: String): LiveData<Boolean> = MutableLiveData<Boolean>().apply {
+        firestore.collection(COLECAO_FIRESTORE_PEDIDOS).document(pedidoId).delete()
+        value = true
+    }
 
     suspend fun editarCliente(id: String, clienteAlterado: Cliente) {
         val document = firestore.collection(COLECAO_FIRESTORE_CLIENTES).document(id)
@@ -284,6 +307,9 @@ class ProdutoRepository(
 
     private fun converteParaCliente(documento: DocumentSnapshot): Cliente? =
         documento.toObject<ClienteDocumento>()?.paraCliente(documento.id)
+
+    private fun converteParaPedido(documento: DocumentSnapshot): Pedido? =
+        documento.toObject<PedidoDocumento>()?.paraPedido(documento.id)
 
     private class ProdutoDocumento(
         val id: String = "",
@@ -317,6 +343,22 @@ class ProdutoRepository(
             telefone = telefone,
             endereco = endereco,
             instagram = instagram
+        )
+    }
+
+    private class PedidoDocumento(
+        val id: String = "",
+        val cliente: String = "",
+        val data: Date ,
+        val listaProduto: MutableList<Produto>,
+
+        ) {
+
+        fun paraPedido(id: String): Pedido = Pedido(
+            id = id,
+            cliente = cliente,
+            data = data,
+            listaProduto = listaProduto
         )
     }
 }

@@ -37,7 +37,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.projetofinal.models.Pedido
@@ -182,7 +181,7 @@ fun Pedidos() {
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
             Log.i("TelaPedido","Botao Listar")
-
+            contexto.startActivity(Intent(contexto, ListaPedido::class.java))
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Listar")
         }
