@@ -12,7 +12,7 @@ import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import java.util.UUID
-import kotlin.math.log
+
 
 private const val COLECAO_FIRESTORE_PRODUTOS = "produtos"
 private const val COLECAO_FIRESTORE_CLIENTES = "clientes"
@@ -176,6 +176,8 @@ class ProdutoRepository(
             value = true
         }
 
+
+
     suspend fun salvarpedido(pedido: Pedido): LiveData<Boolean> = MutableLiveData<Boolean>().apply {
         Log.i("pedidoRepository", "recebendo o pedido $pedido")
         val colecao = firestore.collection(COLECAO_FIRESTORE_PEDIDOS)
@@ -184,8 +186,8 @@ class ProdutoRepository(
         val produtoMapeado = mapOf<String, Any>(
             "id" to pedido.id,
             "cliente" to pedido.cliente,
-            "produtos" to pedido.listaProduto,
-
+            "listaProduto" to pedido.listaProduto,
+            "data" to pedido.data,
             )
 
         Log.i("ProdutoRepository", "produtoMapeado: ${produtoMapeado}")
