@@ -24,6 +24,72 @@ private const val TAG = "Repository"
 class ProdutoRepository(
     private val firestore: FirebaseFirestore, private val storage: FirebaseStorage,
 ) {
+
+//    fun buscaPorId(id: String): LiveData<Produto> = MutableLiveData<Produto>().apply {
+//        firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
+//            .document(id)
+//            .addSnapshotListener { s, _ ->
+//                s?.let { documento ->
+//                    converteParaProduto(documento)
+//                        ?.let { produto ->
+//                            value = produto
+//                        }
+//                }
+//            }
+//    }
+
+    suspend fun buscarDocumentoIdPorObjIdEColecao(
+        idProduto: String,
+        colecao: String,
+        onComplete: (String?) -> Unit,
+    ) {
+        Log.i(TAG, "buscarDocumentoIdPorObjIdEColecao: idProduto $idProduto, colecao $colecao")
+
+
+//        val db = FirebaseFirestore.getInstance()
+//
+//        db.collection(colecao)
+//            .whereEqualTo("id", idProduto)
+//            .get()
+//            .addOnSuccessListener { result ->
+//                if (!result.isEmpty) {
+//                    val documentoId = result.documents[0].id
+//                    onComplete(documentoId)
+//                } else {
+//                    onComplete(null)
+//                }
+//            }
+//            .addOnFailureListener { e ->
+//                // Ocorreu um erro ao buscar o documento
+//                onComplete(null)
+//            }
+
+        Log.i(TAG, "buscarDocumentoIdPorObjIdEColecao: idProduto $idProduto, colecao $colecao")
+
+        val db = FirebaseFirestore.getInstance()
+
+        try {
+            val result = db.collection(colecao)
+                .whereEqualTo("id", idProduto)
+                .get()
+                .await()
+
+            Log.i(TAG, "buscarDocumentoIdPorObjIdEColecao: RESULT $result")
+
+            if (!result.isEmpty) {
+                val documentoId = result.documents[0].id
+
+                Log.i(TAG, "buscarDocumentoIdPorObjIdEColecao: documentoId $documentoId")
+                onComplete(documentoId)
+            } else {
+                onComplete(null)
+            }
+        } catch (e: Exception) {
+            // Ocorreu um erro ao buscar o documento
+            onComplete(null)
+        }
+    }
+
     suspend fun buscaPorId(id: String, callback: (Produto?) -> Unit) {
 
         firestore.collection(COLECAO_FIRESTORE_PRODUTOS).document(id).get()
@@ -67,7 +133,7 @@ class ProdutoRepository(
                         "Não é possível salar imagem. Motivo: ProdutoId ou foto vazios",
                         Exception("Não é possível salar imagem. Motivo: ProdutoId ou foto vazios")
                     )
-                    throw Exception("Não é possível salar imagem. Motivo: ProdutoId ou foto vazios")
+//                    throw Exception("Não é possível salar imagem. Motivo: ProdutoId ou foto vazios")
                 }
 
                 val referenciaStorage = storage.reference.child("produtos/$produtoId.jpg")
@@ -111,7 +177,53 @@ class ProdutoRepository(
 
             Log.i(TAG, "salva: produto ${produto.toString()}")
 
+//            var docSalvo: Boolean = false
+//            val referencia = colecao.add(produtoMapeado)
+//            referencia.addOnSuccessListener {
+//                    docSalvo = true
+//                    Log.d("FireStore", "save: produto salvo")
+//                }.addOnFailureListener { e ->
+//                    Log.w("FireStore", "save: produto erro ${e}")
+//                    docSalvo = false
+//                }
+//
+//            val documentReference = referencia.result
+//            Log.i(TAG, "salva: documentReference ${documentReference.path}, $documentReference")
+//            val imagemSalva = enviaImagem(documentReference.path, produto.id, foto)
+//            value = docSalvo && imagemSalva.value == true
+
+//            var id: String = ""
             var docSalvo: Boolean = false
+//            var documentReference: DocumentReference? = null
+//            var path: String = ""
+//            var id: String = ""
+
+//            var imagemSalva : any? = null
+
+//            val id = colecao.add(produtoMapeado)
+//                .addOnSuccessListener { document ->
+//                    docSalvo = true
+//                    Log.i(
+//                        TAG,
+//                        "salva DENTRO DO ADD: id do documento firestore ${document.id}, "
+//                    )
+//                    Log.d("FireStore", "save: produto salvo")
+//
+//                }.addOnFailureListener { e ->
+//                    Log.w("FireStore", "save: produto erro ${e}")
+//                    docSalvo = false
+//                }.await().id
+//
+//
+//            while (id.isEmpty()) {
+//                delay(100)
+//            }
+//            val documentId = (++documentIdProdutoFiretore.id).toString()
+//            colecao.document(documentId).set(produtoMapeado).addOnSuccessListener {
+//                Log.d("FireStore", "save: produto salvo")
+//            }.addOnFailureListener { e ->
+//                Log.w("FireStore", "save: produto erro ${e}")
+//            }
 
             val db = FirebaseFirestore.getInstance()
             Log.i("PRODUTO REPOSITORY FireStore", "salvarProduto: db $db")
@@ -210,10 +322,10 @@ class ProdutoRepository(
 
 
     suspend fun salvarPedido(pedido: Pedido): LiveData<Boolean> = MutableLiveData<Boolean>().apply {
-        Log.i("pedidoRepository", "salvarpedido: recebendo o pedido $pedido")
+        Log.i("pedidoRepository", "recebendo o pedido $pedido")
         val colecao = firestore.collection(COLECAO_FIRESTORE_PEDIDOS)
         pedido.id = UUID.randomUUID().toString()
-        Log.i("ProdutoRepository", "salvarpedido: Informações do ID $pedido.id")
+        Log.i("ProdutoRepository", "Informações do ID $pedido.id")
         val produtoMapeado = mapOf<String, Any>(
             "id" to pedido.id,
             "cliente" to pedido.cliente,
@@ -221,9 +333,9 @@ class ProdutoRepository(
             "data" to pedido.data,
         )
 
-        Log.i("ProdutoRepository", "salvarPedido: produtoMapeado: ${produtoMapeado}")
+        Log.i("ProdutoRepository", "produtoMapeado: ${produtoMapeado}")
         colecao.document(pedido.id).set(produtoMapeado).addOnSuccessListener {
-            Log.d("ProdutoRepository FireStore", "save: produto salvo")
+            Log.d("FireStore", "save: produto salvo")
         }.addOnFailureListener { e ->
             Log.w("FireStore", "save: produto erro ${e}")
         }
@@ -237,10 +349,7 @@ class ProdutoRepository(
         firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
             .addSnapshotListener { snapshot, exception ->
                 if (exception != null) {
-                    Log.e(
-                        "buscaTodos repository produtos",
-                        "Erro ao buscar produtos: ${exception.message}"
-                    )
+                    Log.e("buscaTodos", "Erro ao buscar produtos: ${exception.message}")
                     return@addSnapshotListener
                 }
                 snapshot?.let { snapshot ->
@@ -248,14 +357,8 @@ class ProdutoRepository(
                         converteParaProduto(documento)
                     }
                     liveData.value = produtos
-                    Log.i(
-                        "buscaTodos repository produtos",
-                        "buscaTodosProdutos: produtos $produtos"
-                    )
                 }
             }
-
-        Log.i(TAG, "buscaTodosProdutos: liveData ${liveData.value}")
         return liveData
     }
 
@@ -264,10 +367,7 @@ class ProdutoRepository(
         firestore.collection(COLECAO_FIRESTORE_CLIENTES)
             .addSnapshotListener { snapshot, exception ->
                 if (exception != null) {
-                    Log.e(
-                        "buscaTodos repository clientes",
-                        "Erro ao buscar clientes: ${exception.message}"
-                    )
+                    Log.e("buscaTodos", "Erro ao buscar clientes: ${exception.message}")
                     return@addSnapshotListener
                 }
                 snapshot?.let { snapshot ->
@@ -275,42 +375,47 @@ class ProdutoRepository(
                         converteParaCliente(documento)
                     }
                     liveData.value = clientes
-
                 }
             }
-        Log.i("buscaTodos repository clientes: ", "liveData $liveData.value")
         return liveData
     }
 
-    fun buscarTodosPedidos(): LiveData<List<Pedido>> {
+    fun buscaTodosPedido(): LiveData<List<Pedido>> {
         val liveData = MutableLiveData<List<Pedido>>()
-        val db = FirebaseFirestore.getInstance()
-        Log.i("PRODUTO REPOSITORY FireStore", "salvarProduto: db $db")
-
-        val collection = db.collection("pedidos")
-        Log.i("PEDIDO REPOSITORY FireStore", "buscarTodosPedidosTESTE: collection $collection")
-        val listaPedidos: MutableList<Pedido> = mutableListOf()
-        collection.get().addOnSuccessListener { documents ->
-            Log.i("PEDIDO REPOSITORY FireStore", "buscarTodosPedidosTESTE: documents $documents.")
-            Log.i("PEDIDO REPOSITORY FireStore", "buscarTodosPedidosTESTE: listaPedidos Vazia $listaPedidos")
-            for (doc in documents.documents) {
-                val pedido = doc.toObject(Pedido::class.java).apply {
-                    this?.id = doc.id
+        firestore.collection(COLECAO_FIRESTORE_PEDIDOS)
+            .addSnapshotListener { snapshot, exception ->
+                if (exception != null) {
+                    Log.e("buscaTodos", "Erro ao buscar pedidos: ${exception.message}")
+                    return@addSnapshotListener
                 }
-                Log.i("PEDIDO REPOSITORY FireStore", "buscarTodosPedidosTESTE: pedido $pedido")
-                if(pedido != null) listaPedidos.add(pedido)
+                snapshot?.let { snapshot ->
+                    val pedidos: List<Pedido> = snapshot.documents.mapNotNull { documento ->
+                        converteParaPedido(documento)
+                    }
+                    liveData.value = pedidos
+                    Log.i("ListaPedidosRepositorio", "pedidos:  ${pedidos}")
+                }
             }
-        }
-        listaPedidos.forEach { pedido ->
-            Log.i(
-                "PEDIDO REPOSITORY FireStore",
-                "buscandoProduto dentro de pedido: pedidos ${pedido.toString()}"
-            )
-        }
-        liveData.value = listaPedidos
-        Log.i("PEDIDO REPOSITORY FireStore", "buscarTodosPedidosTESTE: , $liveData.value")
         return liveData
     }
+
+
+    /*
+     fun buscaTodos(): LiveData<List<Produto>> = MutableLiveData<List<Produto>>().apply {
+        Log.i("buscaTodos", "Inicio")
+        firestore.collection(COLECAO_FIRESTORE_PRODUTOS)
+            .addSnapshotListener { s, _ ->
+                s?.let { snapshot ->
+                    val produtos: List<Produto> = snapshot.documents
+                        .mapNotNull { documento ->
+                            converteParaProduto(documento)
+                        }
+                    value = produtos
+
+                }
+            }
+        Log.i("buscaTodos", "Fim")
+    }*/
 
     fun remove(produtoId: String): LiveData<Boolean> = MutableLiveData<Boolean>().apply {
         firestore.collection(COLECAO_FIRESTORE_PRODUTOS).document(produtoId).delete()
@@ -341,6 +446,18 @@ class ProdutoRepository(
     }
 
 
+
+    suspend fun editarPedido(id: String, pedidoAlterado: Pedido) {
+        val document = firestore.collection(COLECAO_FIRESTORE_PEDIDOS).document(id)
+        val pedidoAlteradoDocumento = PedidoDocumento(
+            id = pedidoAlterado.id,
+            cliente = pedidoAlterado.cliente,
+            data = pedidoAlterado.data,
+            listaProduto = pedidoAlterado.listaProduto
+
+        )
+        document.set(pedidoAlteradoDocumento).await()
+    }
 
     private fun converteParaProduto(documento: DocumentSnapshot): Produto? =
         documento.toObject<ProdutoDocumento>()?.paraProduto(documento.id)
@@ -393,7 +510,7 @@ class ProdutoRepository(
         val listaProduto: MutableList<Produto>,
 
         ) {
-
+        constructor() : this("", "", Date(), mutableListOf())
         fun paraPedido(id: String): Pedido = Pedido(
             id = id,
             cliente = cliente,
