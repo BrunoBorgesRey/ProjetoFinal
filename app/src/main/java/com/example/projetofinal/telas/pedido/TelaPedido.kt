@@ -157,6 +157,7 @@ fun Pedidos() {
                 )
             }
         }
+        Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
             Log.i("TelaPedido","Botao Inserir")
             val cliente = estadoCampoDeTextoFkCpf
