@@ -65,7 +65,7 @@ fun AlterarPedidoTela(idpedido: String?){
     val contexto = LocalContext.current
     val clientesLiveData = repository.buscaTodosCliente()
     val clientesState by clientesLiveData.observeAsState(emptyList())
-    val produtosLiveData = repository.buscaTodos()
+    val produtosLiveData = repository.buscaTodosProdutos()
     val produtosState by produtosLiveData.observeAsState(emptyList())
     var estadoCampoDeTextoFkCpf by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
@@ -166,11 +166,12 @@ fun AlterarPedidoTela(idpedido: String?){
                     listaProduto = selectedProdutos,
                     data = data,
                 )
-//                     Inicie uma coroutine para buscar o ByteArray da imagem
-                coroutineScope.launch {
-                    repository.editarPedido(idpedido,pedido)
-
-                }
+//                Iniciar uma coroutine para buscar o ByteArray da imagem
+//                coroutineScope.launch {
+//                    repository.editarPedido(idpedido,pedido)
+//
+//
+//                }
             }
 
         }, modifier = Modifier.width(300.dp)) {

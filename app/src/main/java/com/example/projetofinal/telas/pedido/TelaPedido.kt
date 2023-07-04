@@ -69,7 +69,7 @@ fun Pedidos() {
     val contexto = LocalContext.current
     val clientesLiveData = repository.buscaTodosCliente()
     val clientesState by clientesLiveData.observeAsState(emptyList())
-    val produtosLiveData = repository.buscaTodos()
+    val produtosLiveData = repository.buscaTodosProdutos()
     val produtosState by produtosLiveData.observeAsState(emptyList())
     var estadoCampoDeTextoFkCpf by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
@@ -171,7 +171,7 @@ fun Pedidos() {
                 )
 //                     Inicie uma coroutine para buscar o ByteArray da imagem
                 coroutineScope.launch {
-                    repository.salvarpedido(pedido)
+                    repository.salvarPedido(pedido)
 
                 }
             }

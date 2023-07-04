@@ -340,6 +340,8 @@ class ProdutoRepository(
         document.set(clienteAlteradoDocumento).await()
     }
 
+
+
     private fun converteParaProduto(documento: DocumentSnapshot): Produto? =
         documento.toObject<ProdutoDocumento>()?.paraProduto(documento.id)
 
