@@ -170,10 +170,12 @@ fun Produtos() {
                     model = selectedImageUri,
                     contentDescription = null,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 20.dp),
+                        .size(200.dp).padding(10.dp),
+
+
                     contentScale = ContentScale.Crop,
                 )
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
         item {
@@ -191,7 +193,6 @@ fun Produtos() {
 
                     if (descricao.isNotEmpty() && valor != null && fotoUri != null) {
                         val produto = Produto(descricao = descricao, preco = valor)
-//                  Inicie uma coroutine para buscar o ByteArray da imagem
                         coroutineScope.launch {
                             val fotoByteArray = withContext(Dispatchers.IO) {
 //                     TODO: remover esse código para uma função específica ->  getByteArrayFromUri(fotoUri)
@@ -201,25 +202,12 @@ fun Produtos() {
                                 bytes
                             }
 
-//                            while (produto.foto?.isBlank() == true) {
-//                                println("Valor de $produto.foto?.isBlank()")
-//                                Log.i("TelaProduto fotoByteArray", "fotoByteArray: $fotoByteArray")
-//                                if (fotoByteArray != null) {
-//                                    Log.i("fotoByteArray", "fotoByteArray: $fotoByteArray")
-//                                    isButtonEnabled.value = true
-//                                    break
-//                                }
-//                                isButtonEnabled.value = false
-//                            }
-
-
-                            if (produto.foto?.isBlank() == true) {
+                            if (selectedImageUri == null) {
                                 Toast.makeText(contexto, "Selecione uma foto", Toast.LENGTH_LONG)
                                     .show()
                             }
 
-
-                            val resultado: LiveData<Boolean> = repository.salva(produto, fotoByteArray!!)
+                            val resultado: LiveData<Boolean> = repository.salvarProduto(produto, fotoByteArray!!)
 
                             if (resultado.value == true) {
                                 Toast.makeText(

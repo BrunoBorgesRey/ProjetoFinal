@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
@@ -36,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -48,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.LiveData
 import coil.compose.AsyncImage
 import com.example.projetofinal.models.Produto
 import kotlinx.coroutines.Dispatchers
@@ -83,6 +84,10 @@ fun AlterarProdutoTela(idproduto: String?) {
         rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(),
             onResult = { uri -> selectedImageUri = uri })
 
+//    var estadoFotoByteArray by remember { mutableStateOf<ByteArray?>(null) }
+    var fotoByteArray: ByteArray? = null
+
+    var fotoAlterada: Boolean = false
     LazyColumn(
         Modifier
             .padding(40.dp)
@@ -219,13 +224,19 @@ fun AlterarProdutoTela(idproduto: String?) {
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Button(
-                    modifier = Modifier.height(60.dp),
-                    onClick = {
-                        singlePhotoPickerLaucher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                        )
-                    }) {
+                Button(modifier = Modifier.height(60.dp), onClick = {
+
+//                        var testeComparacao1: String = selectedImageUri.toString()
+                    Log.i(
+                        TAG,
+                        "AlterarProdutoTela: selectedImageUri ANTES DE ALTERAR IMAGEM: $selectedImageUri"
+                    )
+                    singlePhotoPickerLaucher.launch(
+                        PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                    )
+                    fotoAlterada = true
+
+                }) {
                     Text(
                         text = "Clique para alterar foto", fontStyle = FontStyle.Normal,
                         style = TextStyle(
@@ -240,11 +251,10 @@ fun AlterarProdutoTela(idproduto: String?) {
                     model = selectedImageUri,
                     contentDescription = null,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 20.dp).padding(bottom = 20.dp),
+                        .size(200.dp)
+                        .padding(bottom = 20.dp),
                     contentScale = ContentScale.Crop,
-
-                )
+                    )
             }
         }
         item {
@@ -262,22 +272,34 @@ fun AlterarProdutoTela(idproduto: String?) {
                         "AlterarProdutoTela: Descricao $descricao, valor $valor, fotoUri $fotoUri"
                     )
 
-                    if (descricao.isNotEmpty() && idproduto != null && valor != null && fotoUri != null) {
+                    if (descricao.isNotEmpty() && (idproduto != null) && (valor != null)) {
                         val produto = Produto(id = idproduto, descricao = descricao, preco = valor)
 
-//                     Inicie uma coroutine para buscar o ByteArray da imagem
+                        var resultadoRepository: LiveData<Boolean>
+                        Log.i(TAG, "AlterarProdutoTela: fotoAlterada: $fotoAlterada")
+
+
                         coroutineScope.launch {
-                            val fotoByteArray = withContext(Dispatchers.IO) {
-//                     TODO: remover esse código para uma função específica ->  getByteArrayFromUri(fotoUri)
-                                val inputStream = contexto.contentResolver.openInputStream(fotoUri)
-                                inputStream?.readBytes()
+                            if (fotoAlterada) {
+
+                                val fotoByteArray = withContext(Dispatchers.IO) {
+//                              TODO: remover esse código para uma função específica ->  getByteArrayFromUri(fotoUri)
+                                    val inputStream =
+                                        contexto.contentResolver.openInputStream(selectedImageUri!!)
+                                    inputStream?.readBytes()
+                                }
+
+                                Log.i(TAG, "AlterarProdutoTela: fotoByteArray: $fotoByteArray")
+                                resultadoRepository = repository.editarProduto(produto, fotoByteArray)
+
+                                Log.i(TAG, "AlterarProdutoTela: IF ${resultadoRepository.value}")
+                            } else {
+                                resultadoRepository = repository.editarProduto(produto)
+
+                                Log.i(TAG, "AlterarProdutoTela: ELSE ${resultadoRepository.value}")
                             }
 
-                            Log.i("TelaProduto Alterar", "$produto, $fotoByteArray")
-                            if (fotoByteArray != null) {
-                                val resultado = repository.editar(produto, fotoByteArray)
-
-                                if (resultado.value == true) {
+                            if (resultadoRepository.value == true) {
                                     Toast.makeText(
                                         contexto,
                                         "Produto ${produto.descricao} alterado com sucesso",
@@ -300,11 +322,6 @@ fun AlterarProdutoTela(idproduto: String?) {
                                         Exception("Erro ao alterar produto ${produto.descricao} ")
                                     )
                                 }
-                            } else {
-                                // TODO Lidar com a falha ao obter o ByteArray da imagem
-                            }
-
-
                         }
                     } else {
                         // Lidar com dados inválidos
@@ -327,9 +344,13 @@ fun AlterarProdutoTela(idproduto: String?) {
         }
         item {
             Button(onClick = {
+                 ->
                 Log.i("TelaProduto", "Botao Voltar Produto")
                 contexto.startActivity(Intent(contexto, ListaProduto::class.java))
-            }, modifier = Modifier.width(300.dp)) {
+
+
+            }
+                , modifier = Modifier.width(300.dp)) {
                 Text(
                     text = "Voltar",
                     style = TextStyle(
