@@ -52,47 +52,46 @@ class ProdutoRepository(
         docRefFireStore: String,
         produtoId: String,
         foto: ByteArray,
-    ): LiveData<Boolean> =
-        MutableLiveData<Boolean>().apply {
+    ): LiveData<Boolean> = MutableLiveData<Boolean>().apply {
 
-            Log.i(
-                "PRODUTO REPOSITORY STORAGE",
-                "enviaImagem: enviando a imagem $foto, produto id $produtoId para o storage"
-            )
-            try {
+        Log.i(
+            "PRODUTO REPOSITORY STORAGE",
+            "enviaImagem: enviando a imagem $foto, produto id $produtoId para o storage"
+        )
+        try {
 
-                if (produtoId.isEmpty() || foto.isEmpty()) {
-                    Log.e(
-                        "PRODUTO REPOSITORY STORAGE",
-                        "Não é possível salar imagem. Motivo: ProdutoId ou foto vazios",
-                        Exception("Não é possível salar imagem. Motivo: ProdutoId ou foto vazios")
-                    )
-                    throw Exception("Não é possível salar imagem. Motivo: ProdutoId ou foto vazios")
-                }
-
-                val referenciaStorage = storage.reference.child("produtos/$produtoId.jpg")
-                Log.i(
-                    "PRODUTO REPOSITORY STORAGE",
-                    "enviaImagem: referencia do firestore  $referenciaStorage"
-                )
-
-                referenciaStorage.putBytes(foto).await()
-                val url = referenciaStorage.downloadUrl.await()
-
-                val documento =
-                    firestore.collection(COLECAO_FIRESTORE_PRODUTOS).document(docRefFireStore)
-                documento.update("foto", url.toString()).await()
-
-                value = true
-            } catch (e: Exception) {
+            if (produtoId.isEmpty() || foto.isEmpty()) {
                 Log.e(
                     "PRODUTO REPOSITORY STORAGE",
-                    "Erro ao enviar Imagem: falha ao enviar a imagem ${foto.toString()}, produto id $produtoId",
-                    e
+                    "Não é possível salar imagem. Motivo: ProdutoId ou foto vazios",
+                    Exception("Não é possível salar imagem. Motivo: ProdutoId ou foto vazios")
                 )
-                value = false
+                throw Exception("Não é possível salar imagem. Motivo: ProdutoId ou foto vazios")
             }
+
+            val referenciaStorage = storage.reference.child("produtos/$produtoId.jpg")
+            Log.i(
+                "PRODUTO REPOSITORY STORAGE",
+                "enviaImagem: referencia do firestore  $referenciaStorage"
+            )
+
+            referenciaStorage.putBytes(foto).await()
+            val url = referenciaStorage.downloadUrl.await()
+
+            val documento =
+                firestore.collection(COLECAO_FIRESTORE_PRODUTOS).document(docRefFireStore)
+            documento.update("foto", url.toString()).await()
+
+            value = true
+        } catch (e: Exception) {
+            Log.e(
+                "PRODUTO REPOSITORY STORAGE",
+                "Erro ao enviar Imagem: falha ao enviar a imagem $foto, produto id $produtoId",
+                e
+            )
+            value = false
         }
+    }
 
     suspend fun salvarProduto(produto: Produto, foto: ByteArray): LiveData<Boolean> =
         MutableLiveData<Boolean>().apply {
@@ -292,7 +291,10 @@ class ProdutoRepository(
         val listaPedidos: MutableList<Pedido> = mutableListOf()
         collection.get().addOnSuccessListener { documents ->
             Log.i("PEDIDO REPOSITORY FireStore", "buscarTodosPedidosTESTE: documents $documents.")
-            Log.i("PEDIDO REPOSITORY FireStore", "buscarTodosPedidosTESTE: listaPedidos Vazia $listaPedidos")
+            Log.i(
+                "PEDIDO REPOSITORY FireStore",
+                "buscarTodosPedidosTESTE: listaPedidos Vazia $listaPedidos"
+            )
             for (doc in documents.documents) {
                 val pedido = doc.toObject(Pedido::class.java).apply {
                     this?.id = doc.id
@@ -308,7 +310,10 @@ class ProdutoRepository(
             )
         }
         liveData.value = listaPedidos
-        Log.i("PEDIDO REPOSITORY FireStore", "buscarTodosPedidosTESTE: , $liveData.value")
+        Log.i(
+            "PEDIDO REPOSITORY FireStore",
+            "buscarTodosPedidosTESTE liveData.value: , ${liveData.value.toString()}"
+        )
         return liveData
     }
 
@@ -339,7 +344,6 @@ class ProdutoRepository(
         )
         document.set(clienteAlteradoDocumento).await()
     }
-
 
 
     private fun converteParaProduto(documento: DocumentSnapshot): Produto? =
@@ -395,10 +399,7 @@ class ProdutoRepository(
         ) {
 
         fun paraPedido(id: String): Pedido = Pedido(
-            id = id,
-            cliente = cliente,
-            data = data,
-            listaProduto = listaProduto
+            id = id, cliente = cliente, data = data, listaProduto = listaProduto
         )
     }
 }

@@ -44,6 +44,7 @@ class ListaPedido : ComponentActivity() {
 @Composable
 fun ListaPedidosContent(pedidosLiveData: LiveData<List<Pedido>>) {
     val pedidosState by pedidosLiveData.observeAsState(emptyList())
+    Log.i(TAG, "ListaPedidosContent: pedidosLiveData valor da lista de pedidos ${pedidosLiveData.value}")
     Log.i(TAG, "ListaPedidosContent: pedidosState $pedidosState")
     ListaPedidos(pedidos = pedidosState)
 }
