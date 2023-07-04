@@ -1,5 +1,6 @@
 package com.example.projetofinal.telas.produto
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -75,7 +76,7 @@ fun AlterarProdutoTela(idproduto: String?) {
     val repository = getProdutoRepository()
     val coroutineScope = rememberCoroutineScope()
     val contexto = LocalContext.current
-
+    val activity: Activity? = (LocalContext.current as? Activity)
     val estadoCampoDeTextoDescricao = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoValor = remember { mutableStateOf(TextFieldValue()) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -346,7 +347,7 @@ fun AlterarProdutoTela(idproduto: String?) {
             Button(onClick = {
                  ->
                 Log.i("TelaProduto", "Botao Voltar Produto")
-                contexto.startActivity(Intent(contexto, ListaProduto::class.java))
+                activity?.finish()
 
 
             }

@@ -1,6 +1,6 @@
 package com.example.projetofinal.telas.cliente
 
-import android.content.Intent
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -62,7 +62,7 @@ fun AlterarClienteTela(idcliente: String?){
     val estadoCampoDeTextoTelefone = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoEndereco = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoInstagram = remember { mutableStateOf(TextFieldValue()) }
-
+    val activity: Activity? = (LocalContext.current as? Activity)
 
 
     LazyColumn(
@@ -237,7 +237,8 @@ fun AlterarClienteTela(idcliente: String?){
         item{
             Button(onClick = {
                 Log.i("TelaCliente","Botao Voltar Cliente")
-                contexto.startActivity(Intent(contexto, ListaCliente::class.java))
+                activity?.finish()
+                //contexto.startActivity(Intent(contexto, ListaCliente::class.java))
             }, modifier = Modifier.width(300.dp)) {
                 Text(text = "Voltar")
             }

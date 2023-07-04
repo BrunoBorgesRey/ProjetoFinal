@@ -1,5 +1,6 @@
 package com.example.projetofinal.telas.cliente
 
+import android.app.Activity
 import android.content.Intent
 import android.util.Log
 import androidx.activity.compose.setContent
@@ -59,7 +60,7 @@ fun Clientes() {
     val estadoCampoDeTextoTelefone = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoEndereco = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoInstagram = remember { mutableStateOf(TextFieldValue()) }
-
+    val activity: Activity? = (LocalContext.current as? Activity)
     Column(
         Modifier.padding(40.dp)
     ) {
@@ -196,7 +197,7 @@ fun Clientes() {
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
             Log.i("TelaCliente","Botao Voltar Cliente")
-            contexto.startActivity(Intent(contexto, MainActivity::class.java))
+            activity?.finish()
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Voltar")
         }
