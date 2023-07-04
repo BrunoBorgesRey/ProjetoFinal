@@ -26,16 +26,17 @@ import androidx.lifecycle.LiveData
 import com.example.projetofinal.models.Pedido
 import com.example.projetofinal.telas.produto.getProdutoRepository
 
-
+private const val TAG = "ListaPedido"
 class ListaPedido : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             val repository = getProdutoRepository()
-            Log.i("ListaPedido","ComecaBusca")
-            val pedidosLiveData = repository.buscaTodosPedido()
-            Log.i("ListaPedido","Acaba Busca")
-            ListaPedidosContent(pedidosLiveData)
+            Log.i("ListaPedido","instancia repository, ${repository.toString()}")
+
+            val listaPedidosLiveData = repository.buscarTodosPedidos()
+            Log.i("ListaPedido","resultado do buscarTodosPedidos: ${listaPedidosLiveData.toString()}")
+            ListaPedidosContent(listaPedidosLiveData)
         }
     }
 }
@@ -43,6 +44,7 @@ class ListaPedido : ComponentActivity() {
 @Composable
 fun ListaPedidosContent(pedidosLiveData: LiveData<List<Pedido>>) {
     val pedidosState by pedidosLiveData.observeAsState(emptyList())
+    Log.i(TAG, "ListaPedidosContent: pedidosState $pedidosState")
     ListaPedidos(pedidos = pedidosState)
 }
 

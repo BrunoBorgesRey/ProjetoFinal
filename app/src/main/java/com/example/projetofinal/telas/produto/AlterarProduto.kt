@@ -254,7 +254,7 @@ fun AlterarProdutoTela(idproduto: String?) {
                         .size(200.dp)
                         .padding(bottom = 20.dp),
                     contentScale = ContentScale.Crop,
-                    )
+                )
             }
         }
         item {
@@ -290,7 +290,8 @@ fun AlterarProdutoTela(idproduto: String?) {
                                 }
 
                                 Log.i(TAG, "AlterarProdutoTela: fotoByteArray: $fotoByteArray")
-                                resultadoRepository = repository.editarProduto(produto, fotoByteArray)
+                                resultadoRepository =
+                                    repository.editarProduto(produto, fotoByteArray)
 
                                 Log.i(TAG, "AlterarProdutoTela: IF ${resultadoRepository.value}")
                             } else {
@@ -300,28 +301,28 @@ fun AlterarProdutoTela(idproduto: String?) {
                             }
 
                             if (resultadoRepository.value == true) {
-                                    Toast.makeText(
-                                        contexto,
-                                        "Produto ${produto.descricao} alterado com sucesso",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                    Log.i(
-                                        "TelaAlterar Inserir",
-                                        "Produto ${produto.descricao} alterado com sucesso"
-                                    )
-                                } else {
-                                    // TODO Lidar com a falha ao obter o ByteArray da imagem
-                                    Toast.makeText(
-                                        contexto,
-                                        "Houve algum erro ao salvar o produto ${produto.descricao}",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                    Log.e(
-                                        "TelaAlterar Inserir",
-                                        "Erro ao alterar produto ${produto.descricao}  ",
-                                        Exception("Erro ao alterar produto ${produto.descricao} ")
-                                    )
-                                }
+                                Toast.makeText(
+                                    contexto,
+                                    "Produto ${produto.descricao} alterado com sucesso",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                Log.i(
+                                    "TelaAlterar Inserir",
+                                    "Produto ${produto.descricao} alterado com sucesso"
+                                )
+                            } else {
+                                // TODO Lidar com a falha ao obter o ByteArray da imagem
+                                Toast.makeText(
+                                    contexto,
+                                    "Houve algum erro ao salvar o produto ${produto.descricao}",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                Log.e(
+                                    "TelaAlterar Inserir",
+                                    "Erro ao alterar produto ${produto.descricao}  ",
+                                    Exception("Erro ao alterar produto ${produto.descricao} ")
+                                )
+                            }
                         }
                     } else {
                         // Lidar com dados inválidos
@@ -343,14 +344,10 @@ fun AlterarProdutoTela(idproduto: String?) {
             Spacer(modifier = Modifier.height(25.dp))
         }
         item {
-            Button(onClick = {
-                 ->
+            Button(onClick = { ->
                 Log.i("TelaProduto", "Botao Voltar Produto")
                 contexto.startActivity(Intent(contexto, ListaProduto::class.java))
-
-
-            }
-                , modifier = Modifier.width(300.dp)) {
+            }, modifier = Modifier.width(300.dp)) {
                 Text(
                     text = "Voltar",
                     style = TextStyle(
