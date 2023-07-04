@@ -163,15 +163,19 @@ fun AlterarPedidoTela(idpedido: String?) {
             val data = dateFormat.parse(selectedDateText)
 
             if (cliente.isNotEmpty() ) {
-                val pedido = Pedido(
-                    cliente = cliente,
-                    listaProduto = selectedProdutos,
-                    data = data,
-                )
+                val pedido = idpedido?.let {
+                    Pedido(
+                        id = it,
+                        cliente = cliente,
+                        listaProduto = selectedProdutos,
+                        data = data,
+                    )
+                }
 //                     Inicie uma coroutine para buscar o ByteArray da imagem
                 coroutineScope.launch {
-                    if (idpedido != null) {
-                        repository.editarPedido(idpedido, pedido)
+                    if (idpedido != null && pedido != null) {
+                            repository.editarPedido(idpedido, pedido)
+
                     }
 
                 }
