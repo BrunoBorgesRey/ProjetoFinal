@@ -1,6 +1,6 @@
 package com.example.projetofinal.telas.produto
 
-import android.content.Intent
+import android.app.Activity
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -75,7 +75,7 @@ fun AlterarProdutoTela(idproduto: String?) {
     val repository = getProdutoRepository()
     val coroutineScope = rememberCoroutineScope()
     val contexto = LocalContext.current
-
+    val activity: Activity? = (LocalContext.current as? Activity)
     val estadoCampoDeTextoDescricao = remember { mutableStateOf(TextFieldValue()) }
     val estadoCampoDeTextoValor = remember { mutableStateOf(TextFieldValue()) }
     var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
@@ -83,9 +83,6 @@ fun AlterarProdutoTela(idproduto: String?) {
     val singlePhotoPickerLaucher =
         rememberLauncherForActivityResult(contract = ActivityResultContracts.PickVisualMedia(),
             onResult = { uri -> selectedImageUri = uri })
-
-//    var estadoFotoByteArray by remember { mutableStateOf<ByteArray?>(null) }
-    var fotoByteArray: ByteArray? = null
 
     var fotoAlterada: Boolean = false
     LazyColumn(
@@ -95,9 +92,7 @@ fun AlterarProdutoTela(idproduto: String?) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-
         Log.i(TAG, "AlterarProdutoTela: idproduto: $idproduto")
-
         if (idproduto != null) {
             coroutineScope.launch {
                 repository.buscaPorId(idproduto) { produto ->
@@ -118,7 +113,6 @@ fun AlterarProdutoTela(idproduto: String?) {
                     }
                 }
             }
-
         } else {
             Log.i(TAG, "AlterarProdutoTela: idproduto é nulo")
             Toast.makeText(contexto, "Produto não encontrado", Toast.LENGTH_SHORT).show()
@@ -225,8 +219,6 @@ fun AlterarProdutoTela(idproduto: String?) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Button(modifier = Modifier.height(60.dp), onClick = {
-
-//                        var testeComparacao1: String = selectedImageUri.toString()
                     Log.i(
                         TAG,
                         "AlterarProdutoTela: selectedImageUri ANTES DE ALTERAR IMAGEM: $selectedImageUri"
@@ -325,7 +317,7 @@ fun AlterarProdutoTela(idproduto: String?) {
                             }
                         }
                     } else {
-                        // Lidar com dados inválidos
+                        // todo Lidar com dados inválidos
                         Log.e("TelaProduto Inserir", "Erro ao inserir")
                     }
                     Log.i("TelaProduto", "Botao Alterar")
@@ -346,7 +338,7 @@ fun AlterarProdutoTela(idproduto: String?) {
         item {
             Button(onClick = { ->
                 Log.i("TelaProduto", "Botao Voltar Produto")
-                contexto.startActivity(Intent(contexto, ListaProduto::class.java))
+                activity?.finish()
             }, modifier = Modifier.width(300.dp)) {
                 Text(
                     text = "Voltar",

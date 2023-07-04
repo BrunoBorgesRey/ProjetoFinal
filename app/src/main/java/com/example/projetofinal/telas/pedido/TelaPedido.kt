@@ -1,6 +1,7 @@
 package com.example.projetofinal.telas.pedido
 
 
+import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
@@ -76,7 +77,7 @@ fun Pedidos() {
     val calendar = Calendar.getInstance()
 
     var selectedDateText by remember { mutableStateOf("") }
-
+    val activity: Activity? = (LocalContext.current as? Activity)
 // Fetching current year, month and day
     val year = calendar[Calendar.YEAR]
     val month = calendar[Calendar.MONTH]
@@ -188,7 +189,7 @@ fun Pedidos() {
         Spacer(modifier = Modifier.height(10.dp))
         Button(onClick = {
             Log.i("TelaPedido","Botao Voltar Pedido")
-            contexto.startActivity(Intent(contexto, MainActivity::class.java))
+            activity?.finish()
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Voltar")
         }

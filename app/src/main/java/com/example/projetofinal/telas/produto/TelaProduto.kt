@@ -1,5 +1,6 @@
 package com.example.projetofinal.telas.produto
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -68,7 +69,7 @@ fun Produtos() {
             onResult = { uri -> selectedImageUri = uri })
 
     var produto: Produto? = null
-
+    val activity: Activity? = (LocalContext.current as? Activity)
     LazyColumn(
         Modifier
             .padding(40.dp)
@@ -268,7 +269,7 @@ fun Produtos() {
         item {
             Button(onClick = {
                 Log.i("TelaProduto", "Botao Voltar Produto")
-                contexto.startActivity(Intent(contexto, MainActivity::class.java))
+                activity?.finish()
             }, modifier = Modifier.width(300.dp)) {
                 Text(
                     text = "Voltar",
