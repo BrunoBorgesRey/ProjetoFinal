@@ -52,7 +52,7 @@ class AlterarPedido : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val receivedString = intent.getStringExtra("myStringExtra")
-            com.example.projetofinal.telas.cliente.AlterarClienteTela(receivedString)
+            AlterarPedidoTela(receivedString)
         }
     }
 }

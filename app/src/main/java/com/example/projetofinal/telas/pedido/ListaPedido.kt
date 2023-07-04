@@ -34,7 +34,7 @@ class ListaPedido : ComponentActivity() {
             val repository = getProdutoRepository()
             Log.i("ListaPedido","instancia repository, ${repository.toString()}")
 
-            val listaPedidosLiveData = repository.buscarTodosPedidos()
+            val listaPedidosLiveData = repository.buscaTodosPedido()
             Log.i("ListaPedido","resultado do buscarTodosPedidos: ${listaPedidosLiveData.toString()}")
             ListaPedidosContent(listaPedidosLiveData)
         }
@@ -51,6 +51,7 @@ fun ListaPedidosContent(pedidosLiveData: LiveData<List<Pedido>>) {
 
 @Composable
 fun ListaPedidos(pedidos: List<Pedido>) {
+    Log.i(TAG, "ListaPedidosContent: pedidos $pedidos")
     LazyColumn {
         items(pedidos) { pedido ->
             ProductItem(pedido = pedido)
@@ -60,6 +61,7 @@ fun ListaPedidos(pedidos: List<Pedido>) {
 
 @Composable
 fun ProductItem(pedido: Pedido) {
+    Log.i(TAG, "ListaPedidosContent: pedidos ${pedido.toString()}")
     val repository = getProdutoRepository()
     val contexto = LocalContext.current
     Row(
@@ -78,7 +80,7 @@ fun ProductItem(pedido: Pedido) {
             modifier = Modifier.weight(1f)
         )
         Text(
-            text = pedido.listaProduto.toString(),
+            text = pedido.cliente,
             style = TextStyle(
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
