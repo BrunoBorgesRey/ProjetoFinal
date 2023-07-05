@@ -2,7 +2,6 @@ package com.example.projetofinal.telas.pedido
 
 import android.app.Activity
 import android.app.DatePickerDialog
-import android.content.Intent
 
 import android.os.Bundle
 import android.util.Log
@@ -41,6 +40,7 @@ import androidx.compose.ui.platform.LocalContext
 
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.projetofinal.models.Cliente
 import com.example.projetofinal.models.Pedido
 import com.example.projetofinal.models.Produto
 
@@ -69,7 +69,7 @@ fun AlterarPedidoTela(idpedido: String?) {
     val clientesState by clientesLiveData.observeAsState(emptyList())
     val produtosLiveData = repository.buscaTodosProdutos()
     val produtosState by produtosLiveData.observeAsState(emptyList())
-    var estadoCampoDeTextoFkCpf by remember { mutableStateOf("") }
+    var estadoCampoDeTextoFkCpf by remember { mutableStateOf("")  }
     var expanded by remember { mutableStateOf(false) }
     var selectedText by remember { mutableStateOf("Escolher Cliente") }
     val calendar = Calendar.getInstance()
@@ -162,16 +162,17 @@ fun AlterarPedidoTela(idpedido: String?) {
             val dateFormat = SimpleDateFormat("dd/MM/yyyy")
             val data = dateFormat.parse(selectedDateText)
 
-            if (cliente.isNotEmpty() ) {
+
                 val pedido = idpedido?.let {
-                    Pedido(
-                        id = it,
-                        cliente = cliente,
-                        listaProduto = selectedProdutos,
-                        data = data,
-                    )
+
+                        Pedido(
+                            id = it,
+                            cliente = cliente,
+                            listaProduto = selectedProdutos,
+                            data = data,
+                        )
+
                 }
-//                     Inicie uma coroutine para buscar o ByteArray da imagem
                 coroutineScope.launch {
                     if (idpedido != null && pedido != null) {
                             repository.editarPedido(idpedido, pedido)
@@ -179,7 +180,6 @@ fun AlterarPedidoTela(idpedido: String?) {
                     }
 
                 }
-            }
 
         }, modifier = Modifier.width(300.dp)) {
             Text(text = "Alterar")

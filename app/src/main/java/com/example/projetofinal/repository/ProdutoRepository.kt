@@ -36,7 +36,7 @@ class ProdutoRepository(
             }
     }
 
-    suspend fun buscaPorIdCliente(id: String, callback: (Cliente?) -> Unit) {
+   suspend fun buscaPorIdCliente(id: String, callback: (Cliente?) -> Unit) {
 
         firestore.collection(COLECAO_FIRESTORE_CLIENTES).document(id).get()
             .addOnSuccessListener { document ->
@@ -47,6 +47,9 @@ class ProdutoRepository(
                 callback(null)
             }
     }
+
+
+
 
     suspend fun enviaImagem(
         docRefFireStore: String,
@@ -285,6 +288,7 @@ class ProdutoRepository(
                 }
                 snapshot?.let { snapshot ->
                     val pedidos: List<Pedido> = snapshot.documents.mapNotNull { documento ->
+                        Log.i("buscaTodosPedido", "pedidos:  ${documento}")
                         converteParaPedido(documento)
                     }
                     liveData.value = pedidos
@@ -417,7 +421,7 @@ class ProdutoRepository(
         val instagram: String = "",
 
         ) {
-
+        //constructor() : this("", "", "","","","")
         fun paraCliente(id: String): Cliente = Cliente(
             id = id,
             cpf = cpf,
@@ -430,7 +434,7 @@ class ProdutoRepository(
 
     private class PedidoDocumento(
         val id: String = "",
-        val cliente: String = "",
+        val cliente: String,
         val data: Date,
         val listaProduto: MutableList<Produto>,
 

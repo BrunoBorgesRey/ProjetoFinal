@@ -7,6 +7,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.border
@@ -38,8 +39,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.projetofinal.models.Cliente
 import com.example.projetofinal.models.Pedido
 import com.example.projetofinal.models.Produto
 import com.example.projetofinal.telas.MainActivity
@@ -158,26 +161,29 @@ fun Pedidos() {
             }
         }
         Spacer(modifier = Modifier.height(10.dp))
-        Button(onClick = {
-            Log.i("TelaPedido","Botao Inserir")
-            val cliente = estadoCampoDeTextoFkCpf
-            val dateFormat = SimpleDateFormat("dd/MM/yyyy")
-            val data = dateFormat.parse(selectedDateText)
+        Button(
+            onClick = {
+                Log.i("TelaPedido", "Botao Inserir")
 
-            if (cliente.isNotEmpty() ) {
-                val pedido = Pedido(
-                    cliente = cliente,
-                    listaProduto = selectedProdutos,
-                    data = data,
-                )
-//                     Inicie uma coroutine para buscar o ByteArray da imagem
+
+                    val cliente =  estadoCampoDeTextoFkCpf
+                    val dateFormat = SimpleDateFormat("dd/MM/yyyy")
+                    val data = dateFormat.parse(selectedDateText)
+                    val  pedido =    Pedido(
+                                cliente = cliente,
+                                listaProduto = selectedProdutos,
+                                data = data
+                            )
+
                 coroutineScope.launch {
-                    repository.salvarPedido(pedido)
-
+                    if (pedido != null) {
+                        repository.salvarPedido(pedido)
+                    }
                 }
-            }
 
-        }, modifier = Modifier.width(300.dp)) {
+            },
+            modifier = Modifier.width(300.dp)
+        ) {
             Text(text = "Inserir")
         }
         Spacer(modifier = Modifier.height(10.dp))
