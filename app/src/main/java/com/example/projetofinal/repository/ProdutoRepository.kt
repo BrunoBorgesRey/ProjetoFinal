@@ -277,7 +277,7 @@ class ProdutoRepository(
 
     fun buscaTodosPedido(): LiveData<List<Pedido>> {
         val liveData = MutableLiveData<List<Pedido>>()
-        firestore.collection(COLECAO_FIRESTORE_PEDIDOS)
+        firestore.collection(COLECAO_FIRESTORE_PEDIDOS).orderBy("cliente")
             .addSnapshotListener { snapshot, exception ->
                 if (exception != null) {
                     Log.e("buscaTodos", "Erro ao buscar pedidos: ${exception.message}")
